@@ -1,0 +1,1 @@
+docker stop e-commerce-application-ecommerce-mysql-db-1
