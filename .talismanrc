@@ -1,0 +1,9 @@
+fileignoreconfig:
+- filename: src/main/resources/application.properties
+  checksum: 29d803d41f86b97935a98ef626b623560d4d2210636181512d99a63ad9d13d82
+- filename: src/main/java/com/sritiman/ecommerce/ecommerceapplication/utilities/CustomerDataStub.java
+  checksum: 675a34198846321b31c79b75b161c135e5b647e3398037043912bcac43756b42
+- filename: src/main/java/com/sritiman/ecommerce/ecommerceapplication/entity/Customer.java
+  checksum: 58876eef459f08762f02cea982f65786cc9fc163aca47ab87bb05993c2c371f0
+version: 
+
