@@ -5,5 +5,7 @@ fileignoreconfig:
   checksum: 675a34198846321b31c79b75b161c135e5b647e3398037043912bcac43756b42
 - filename: src/main/java/com/sritiman/ecommerce/ecommerceapplication/entity/Customer.java
   checksum: 58876eef459f08762f02cea982f65786cc9fc163aca47ab87bb05993c2c371f0
+- filename: src/main/java/com/sritiman/ecommerce/ecommerceapplication/model/SignupRequest.java
+  checksum: b0777a5151ed265417f6ccb331efe9ff1d7636971d82c8c510d4b835b30e4c34
 version: 
 

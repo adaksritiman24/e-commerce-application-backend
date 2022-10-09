@@ -8,9 +8,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Component;
 
-import javax.persistence.EntityManager;
-import java.util.List;
-
 @Component
 public class CustomerDataStub implements CommandLineRunner {
 
@@ -23,8 +20,6 @@ public class CustomerDataStub implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-
-        System.out.println("Here-------");
 
         String password = BCrypt.hashpw("Password@1", BCrypt.gensalt());
 
@@ -39,19 +34,17 @@ public class CustomerDataStub implements CommandLineRunner {
 
         customer.setName("Sritiman Adak");
         customer.setEmail("adaksritiman24@gmail.com");
-        customer.setAddress(
-                List.of(address)
-        );
+        customer.setAddress(address);
         customer.setUsername("sritiman24");
         customer.setPhoneNumber("6289403930");
         customer.setPassword(password);
 
         System.out.println(customer);
-        try{
+        try {
             customerRepository.save(customer);
 
-        }catch (Exception e) {
-            System.out.println("[FAIL]: " +e.getMessage());
+        } catch (Exception e) {
+            System.out.println("[FAIL]: " + e.getMessage());
         }
     }
 

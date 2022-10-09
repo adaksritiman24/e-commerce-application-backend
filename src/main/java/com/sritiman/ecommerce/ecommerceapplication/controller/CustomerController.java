@@ -1,15 +1,39 @@
 package com.sritiman.ecommerce.ecommerceapplication.controller;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.sritiman.ecommerce.ecommerceapplication.model.LoginRequest;
+import com.sritiman.ecommerce.ecommerceapplication.model.LoginResponse;
+import com.sritiman.ecommerce.ecommerceapplication.model.SignupRequest;
+import com.sritiman.ecommerce.ecommerceapplication.model.SignupResponse;
+import com.sritiman.ecommerce.ecommerceapplication.service.CustomerService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/customer")
 public class CustomerController {
 
-    @GetMapping("")
-    public String getCustomerDetails() {
-        return "Sritiman Adak";
+    private final CustomerService customerService;
+    Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    public CustomerController(CustomerService customerService) {
+        this.customerService = customerService;
+    }
+
+    @PostMapping("/signup")
+    public ResponseEntity<SignupResponse> getCustomerDetails(@RequestBody SignupRequest signupRequest) {
+        SignupResponse signupResponse = customerService.signup(signupRequest);
+        logger.info("New customer created: {}", signupResponse);
+        return new ResponseEntity<>(signupResponse, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
+        LoginResponse loginResponse = customerService.login(loginRequest.getUsername(), loginRequest.getPassword());
+        return new ResponseEntity<>(loginResponse, HttpStatus.OK);
     }
 }

@@ -1,10 +1,13 @@
 package com.sritiman.ecommerce.ecommerceapplication.entity;
 
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.validation.annotation.Validated;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Entity(name = "customer")
 @NoArgsConstructor
@@ -25,8 +28,8 @@ public class Customer {
     @Column(unique = true)
     private String email;
 
-    @OneToMany(targetEntity = Address.class, cascade = {CascadeType.ALL})
-    private List<Address> address;
+    @OneToOne(targetEntity = Address.class, cascade = {CascadeType.ALL})
+    private Address address;
 
     @Column(name = "phone_number")
     private String phoneNumber;
