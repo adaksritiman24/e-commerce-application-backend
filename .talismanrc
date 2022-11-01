@@ -7,5 +7,10 @@ fileignoreconfig:
   checksum: 58876eef459f08762f02cea982f65786cc9fc163aca47ab87bb05993c2c371f0
 - filename: src/main/java/com/sritiman/ecommerce/ecommerceapplication/model/SignupRequest.java
   checksum: b0777a5151ed265417f6ccb331efe9ff1d7636971d82c8c510d4b835b30e4c34
+- filename: src/main/java/com/sritiman/ecommerce/ecommerceapplication/entity/Product.java
+  checksum: 03dad8c3188d3e465aee506e43451537fda5500c1c337f6dbc300a546d4754e1
+- filename: src/main/java/com/sritiman/ecommerce/ecommerceapplication/utilities/ProductDataStub.java
+  checksum: 0a87afe205d2b3e35f8a0642f02e9a5e10e64323d48d3d9bedac84dbe8ae7896
+
 version: 
 
