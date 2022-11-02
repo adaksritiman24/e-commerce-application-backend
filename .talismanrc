@@ -11,6 +11,7 @@ fileignoreconfig:
   checksum: 03dad8c3188d3e465aee506e43451537fda5500c1c337f6dbc300a546d4754e1
 - filename: src/main/java/com/sritiman/ecommerce/ecommerceapplication/utilities/ProductDataStub.java
   checksum: 0a87afe205d2b3e35f8a0642f02e9a5e10e64323d48d3d9bedac84dbe8ae7896
-
+- filename: src/main/java/com/sritiman/ecommerce/ecommerceapplication/repository/ProductRepository.java
+  checksum: 94ebbc9612acd76f6a25c7b1210771af246f14cd7a60276a99e1b17347f3e75d
 version: 
 

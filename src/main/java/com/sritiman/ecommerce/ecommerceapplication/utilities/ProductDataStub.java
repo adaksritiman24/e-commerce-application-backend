@@ -1,12 +1,9 @@
 package com.sritiman.ecommerce.ecommerceapplication.utilities;
 
-import com.sritiman.ecommerce.ecommerceapplication.entity.Keyword;
-import com.sritiman.ecommerce.ecommerceapplication.entity.Product;
-import com.sritiman.ecommerce.ecommerceapplication.entity.ProductDetail;
-import com.sritiman.ecommerce.ecommerceapplication.entity.ProductImage;
+import com.sritiman.ecommerce.ecommerceapplication.entity.*;
+import com.sritiman.ecommerce.ecommerceapplication.repository.CategoryRepository;
 import com.sritiman.ecommerce.ecommerceapplication.repository.ProductRepository;
-import org.hibernate.Hibernate;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -20,37 +17,54 @@ import java.util.List;
 public class ProductDataStub implements CommandLineRunner {
 
     private ProductRepository productRepository;
+    private CategoryRepository categoryRepository;
 
-    public ProductDataStub(ProductRepository productRepository) {
+    @Autowired
+
+    public ProductDataStub(ProductRepository productRepository, CategoryRepository categoryRepository) {
         this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     @Override
     public void run(String... args) throws Exception {
 
-
-        return;
+//        List<Category> categories = Arrays.asList(
+//            new Category(1, "electronics"),
+//            new Category(1, "home and kitchen"),
+//            new Category(1, "fashion"),
+//            new Category(1, "smartphones"),
+//            new Category(1, "computers"),
+//            new Category(1, "lifestyle"),
+//            new Category(1, "beauty"),
+//            new Category(1, "footwear"),
+//            new Category(1, "baby products")
+//        );
 //
-//        String name = "Samsung galaxy S10+ (12gb RAM, 256gb ROM)";
-//        double normalPrice = 82000;
-//        double discountedPrice = 71599;
-//        String brand = "Samsung";
+//        categoryRepository.saveAll(categories);
+
+//
+//        String name = "Moto edge 70 (Midnight Blue, 4GB, 64GB Storage)";
+//        double normalPrice = 52000;
+//        double discountedPrice = 48599;
+//        String brand = "Motorola";
 //        int rating = 0;
-//        String seller = "ASIN Electronics";
+//        String seller = "Buzz Smartphones";
 //        List<ProductImage> productImages= Arrays.asList(
-//                new ProductImage("/buzz/imgs/products/s10plus.jpg"),
-//                new ProductImage("/buzz/imgs/products/s10plus-3.jpg"),
-//                new ProductImage("/buzz/imgs/products/s10plus-2.jpg")
+//                new ProductImage("/buzz/imgs/products/motorola-edge-70.jpeg")
 //        );
 //
 //        List<Keyword> keywords = Arrays.asList(
-//                new Keyword("samsung"),
-//                new Keyword("galaxy"),
-//                new Keyword("smartphone"),
+//                new Keyword("moto"),
+//                new Keyword("motorola"),
+//                new Keyword("edge 70"),
+//                new Keyword("edge"),
+//                new Keyword("mobiles"),
 //                new Keyword("mobile"),
-//                new Keyword("s10"),
-//                new Keyword("s10+"),
-//                new Keyword("phone")
+//                new Keyword("smartphone"),
+//                new Keyword("smartphones"),
+//                new Keyword("phone"),
+//                new Keyword("phones")
 //        );
 //
 //        List<ProductDetail> productDetails = Arrays.asList(
@@ -71,8 +85,20 @@ public class ProductDataStub implements CommandLineRunner {
 //        product.setSeller(seller);
 //        product.setImages(productImages);
 //        product.setKeywords(keywords);
+//        product.setCategory(
+//                categoryRepository.findByName("smartphones")
+//        );
 //        product.setProductDetails(productDetails);
 //
 //        productRepository.save(product);
+//
+//        Product product1 = productRepository.findByName("Samsung galaxy S10+ (12gb RAM, 256gb ROM)");
+//        Product product2 = productRepository.findByName("Samsung S22 Ultra (Midnight Blue, 4GB, 64GB Storage)");
+//
+//        product1.setCategory(categoryRepository.findByName("smartphones"));
+//        product2.setCategory(categoryRepository.findByName("smartphones"));
+//
+//        productRepository.save(product1);
+//        productRepository.save(product2);
     }
 }

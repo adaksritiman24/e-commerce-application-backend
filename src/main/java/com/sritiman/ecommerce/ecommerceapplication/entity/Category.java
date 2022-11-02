@@ -8,7 +8,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Entity
-@Value
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter
 public class Category {
 
