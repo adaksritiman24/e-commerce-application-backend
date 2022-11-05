@@ -8,6 +8,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -28,6 +29,30 @@ public class ProductDataStub implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+
+//        Product p1 = productRepository.findById(16L).orElse(null);
+//        Product p1 = productRepository.findById(58L).orElse(null);
+//        Product p1 = productRepository.findById(61L).orElse(null);
+//        Product p4 = productRepository.findById(64L).orElse(null);
+//        Product p1 = productRepository.findById(67L).orElse(null);
+//        Product p1 = productRepository.findById(70L).orElse(null);
+//        Product p1 = productRepository.findById(73L).orElse(null);
+//        Product p1 = productRepository.findById(76L).orElse(null);
+//        Product p9 = productRepository.findById(79L).orElse(null);
+//
+//        if(p1!=null){
+//            List<AssociatedProduct> asp = new ArrayList<AssociatedProduct>();
+//
+//
+//                asp.add(new AssociatedProduct(79L));
+//                asp.add(new AssociatedProduct(73L));
+//                asp.add(new AssociatedProduct(58L));
+//                asp.add(new AssociatedProduct(61L));
+//
+//            p1.setAssociatedProducts(asp);
+//        }
+//        if(p1 != null)
+//            productRepository.save(p1);
 
 //        List<Category> categories = Arrays.asList(
 //            new Category(1, "electronics"),

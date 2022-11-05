@@ -1,5 +1,6 @@
 package com.sritiman.ecommerce.ecommerceapplication.controller;
 
+import com.sritiman.ecommerce.ecommerceapplication.entity.AssociatedProduct;
 import com.sritiman.ecommerce.ecommerceapplication.entity.Product;
 import com.sritiman.ecommerce.ecommerceapplication.model.product.SearchedProduct;
 import com.sritiman.ecommerce.ecommerceapplication.repository.ProductRepository;
@@ -14,6 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/products")
 @Transactional
+@CrossOrigin
 public class ProductController {
 
 
@@ -34,5 +36,10 @@ public class ProductController {
    @GetMapping("/search/{text}")
     public List<SearchedProduct> getBySearchKeyword(@PathVariable("text") String searchTerm) {
         return productService.getSearchByTerm(searchTerm);
+   }
+
+   @PostMapping("/associated")
+    public List<SearchedProduct> getAssociatedProductsData(@RequestBody List<AssociatedProduct> associatedProductsIds) {
+        return productService.getAssociatedProducts(associatedProductsIds);
    }
 }

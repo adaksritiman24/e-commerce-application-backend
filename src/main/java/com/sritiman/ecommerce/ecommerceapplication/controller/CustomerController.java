@@ -1,9 +1,7 @@
 package com.sritiman.ecommerce.ecommerceapplication.controller;
 
-import com.sritiman.ecommerce.ecommerceapplication.model.LoginRequest;
-import com.sritiman.ecommerce.ecommerceapplication.model.LoginResponse;
-import com.sritiman.ecommerce.ecommerceapplication.model.SignupRequest;
-import com.sritiman.ecommerce.ecommerceapplication.model.SignupResponse;
+import com.sritiman.ecommerce.ecommerceapplication.entity.Customer;
+import com.sritiman.ecommerce.ecommerceapplication.model.*;
 import com.sritiman.ecommerce.ecommerceapplication.service.CustomerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/customer")
+@CrossOrigin
 public class CustomerController {
 
     private final CustomerService customerService;
@@ -36,4 +35,14 @@ public class CustomerController {
         LoginResponse loginResponse = customerService.login(loginRequest.getUsername(), loginRequest.getPassword());
         return new ResponseEntity<>(loginResponse, HttpStatus.OK);
     }
+
+    @PostMapping("/me")
+    public ResponseEntity<Customer> validateTokenAndReturnCustomerData(@RequestBody TokenValidationRequest tokenValidationRequest) {
+        return new ResponseEntity<>(
+                customerService.getMe(tokenValidationRequest.getToken()),
+                HttpStatus.OK
+        );
+    }
+
+
 }

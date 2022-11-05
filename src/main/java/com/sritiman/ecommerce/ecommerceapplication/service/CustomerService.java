@@ -11,6 +11,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.CrossOrigin;
+
+import java.util.Arrays;
 import java.util.Base64;
 
 @Service
@@ -70,5 +73,17 @@ public class CustomerService {
 
     private String hashPw(String plainPassword) {
         return BCrypt.hashpw(plainPassword, BCrypt.gensalt());
+    }
+
+    public Customer getMe(String token) throws LoginException{
+        try{
+            String decodedToken = new String(Base64.getDecoder().decode(token));
+            String username = Arrays.stream(decodedToken.split(":")).findFirst().orElse(null);
+
+            return customerRepository.findByUsername(username);
+        }
+        catch (Exception exception){
+            throw new LoginException("Invalid Token");
+        }
     }
 }
