@@ -36,6 +36,9 @@ public class Customer {
 
     private String password;
 
+    @OneToOne(targetEntity = Cart.class, cascade = {CascadeType.ALL})
+    private Cart cart;
+
     @Override
     public String toString() {
         return "Customer{" +
