@@ -14,9 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -88,6 +86,34 @@ public class CartService {
         return getCartForCustomer(username);
     }
 
+    public Cart mergeCart(String username, List<UpdateCartRequest> fromCartItems) throws Exception {
+        Cart cart = getCartForCustomer(username);
+        List<CartEntry> toCartItems = cart.getCartEntryList();
+        if(Objects.isNull(fromCartItems) || fromCartItems.isEmpty()) {
+            return cart;
+        }
+        List<CartEntry> newItems = new ArrayList<>();
+        for(UpdateCartRequest fromCartEntry : fromCartItems) {
+            boolean cartEntryFound = false;
+            for (CartEntry toCartEntry: toCartItems) {
+                if(fromCartEntry.getProductId().equals(toCartEntry.getProductId())) { //if match found , update quantity
+                    cartEntryFound = true;
+                    toCartEntry.setQuantity(toCartEntry.getQuantity() + fromCartEntry.getQuantity());
+                }
+            }
+
+            if(!cartEntryFound) { //populate new Items if not found in cart
+                newItems.add(createNewCartEntry(fromCartEntry.getProductId(), fromCartEntry.getQuantity()));
+            }
+        }
+        //Add the newItems to cart entry list
+        toCartItems.addAll(newItems);
+        cart.setCartEntryList(toCartItems);
+        cartRepository.save(cart);
+        return getCartForCustomer(username);
+
+    }
+
     private CartEntry createNewCartEntry(Long productId, int quantity) {
         return new CartEntry(productId, quantity);
     }
@@ -96,4 +122,6 @@ public class CartService {
         Optional<Product> product = productRepository.findById(productId);
         return product.isPresent();
     }
+
+
 }

@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/cart")
 @CrossOrigin
@@ -45,6 +47,16 @@ public class CartController {
                                                 @RequestBody DeleteCartEntryRequest deleteCartEntryRequest) {
         try {
             return new ResponseEntity<>(cartService.removeCartEntry(username, deleteCartEntryRequest), HttpStatus.OK);
+        }catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/{username}/merge")
+    public ResponseEntity<Cart> mergeCart(@PathVariable String username,
+                                          @RequestBody List<UpdateCartRequest> fromCartItems) {
+        try {
+            return new ResponseEntity<>(cartService.mergeCart(username, fromCartItems), HttpStatus.OK);
         }catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
