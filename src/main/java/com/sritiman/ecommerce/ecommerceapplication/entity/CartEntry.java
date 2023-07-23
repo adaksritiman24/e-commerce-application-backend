@@ -15,4 +15,6 @@ import javax.persistence.Embeddable;
 public class CartEntry {
     private long productId;
     private int quantity;
+    private Double unitPrice;
+    private Double totalPrice;
 }

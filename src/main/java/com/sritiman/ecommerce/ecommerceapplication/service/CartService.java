@@ -4,6 +4,7 @@ import com.sritiman.ecommerce.ecommerceapplication.entity.Cart;
 import com.sritiman.ecommerce.ecommerceapplication.entity.CartEntry;
 import com.sritiman.ecommerce.ecommerceapplication.entity.Customer;
 import com.sritiman.ecommerce.ecommerceapplication.entity.Product;
+import com.sritiman.ecommerce.ecommerceapplication.exceptions.CartNotFoundException;
 import com.sritiman.ecommerce.ecommerceapplication.model.DeleteCartEntryRequest;
 import com.sritiman.ecommerce.ecommerceapplication.model.UpdateCartRequest;
 import com.sritiman.ecommerce.ecommerceapplication.repository.CartRepository;
@@ -14,6 +15,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,7 +38,9 @@ public class CartService {
         Customer customer = customerRepository.findByUsername(username);
         LOG.info("Customer: {}", customer);
         if (Objects.nonNull(customer)) {
-            return customer.getCart();
+            Cart customerCart = customer.getCart();
+            calculateCart(customerCart.getId());
+            return customerCart;
         }
         throw new Exception("Customer not found: " + username);
     }
@@ -89,20 +94,20 @@ public class CartService {
     public Cart mergeCart(String username, List<UpdateCartRequest> fromCartItems) throws Exception {
         Cart cart = getCartForCustomer(username);
         List<CartEntry> toCartItems = cart.getCartEntryList();
-        if(Objects.isNull(fromCartItems) || fromCartItems.isEmpty()) {
+        if (Objects.isNull(fromCartItems) || fromCartItems.isEmpty()) {
             return cart;
         }
         List<CartEntry> newItems = new ArrayList<>();
-        for(UpdateCartRequest fromCartEntry : fromCartItems) {
+        for (UpdateCartRequest fromCartEntry : fromCartItems) {
             boolean cartEntryFound = false;
-            for (CartEntry toCartEntry: toCartItems) {
-                if(fromCartEntry.getProductId().equals(toCartEntry.getProductId())) { //if match found , update quantity
+            for (CartEntry toCartEntry : toCartItems) {
+                if (fromCartEntry.getProductId().equals(toCartEntry.getProductId())) { //if match found , update quantity
                     cartEntryFound = true;
                     toCartEntry.setQuantity(toCartEntry.getQuantity() + fromCartEntry.getQuantity());
                 }
             }
 
-            if(!cartEntryFound) { //populate new Items if not found in cart
+            if (!cartEntryFound) { //populate new Items if not found in cart
                 newItems.add(createNewCartEntry(fromCartEntry.getProductId(), fromCartEntry.getQuantity()));
             }
         }
@@ -115,7 +120,7 @@ public class CartService {
     }
 
     private CartEntry createNewCartEntry(Long productId, int quantity) {
-        return new CartEntry(productId, quantity);
+        return new CartEntry(productId, quantity, 0.0, 0.0);
     }
 
     private boolean isValidProductId(Long productId) {
@@ -123,5 +128,26 @@ public class CartService {
         return product.isPresent();
     }
 
-
+    private void calculateCart(long cartID) {
+        Optional<Cart> cartOPT = cartRepository.findById(cartID);
+        if (cartOPT.isEmpty()) {
+            LOG.info("Cart with id : {} does not exist!", cartID);
+            throw new CartNotFoundException("Cart not found: " + cartID);
+        }
+        Cart cart = cartOPT.get();
+        BigDecimal cartTotalPrice = BigDecimal.ZERO;
+        for (CartEntry cartEntry : cart.getCartEntryList()) {
+            Optional<Product> productOPT = productRepository.findById(cartEntry.getProductId());
+            if (productOPT.isPresent()) {
+                Product product = productOPT.get();
+                BigDecimal discountedPrice = BigDecimal.valueOf(product.getDiscountedPrice());
+                BigDecimal quantity = BigDecimal.valueOf(cartEntry.getQuantity());
+                cartEntry.setUnitPrice(discountedPrice.setScale(2, RoundingMode.HALF_EVEN).doubleValue());
+                cartEntry.setTotalPrice(discountedPrice.multiply(quantity).setScale(2, RoundingMode.HALF_EVEN).doubleValue());
+                cartTotalPrice = cartTotalPrice.add(BigDecimal.valueOf(cartEntry.getTotalPrice()));
+            }
+        }
+        cart.setTotalPrice(cartTotalPrice.setScale(2, RoundingMode.HALF_EVEN).doubleValue());
+        cartRepository.save(cart);
+    }
 }

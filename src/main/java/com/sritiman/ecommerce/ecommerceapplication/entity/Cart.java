@@ -14,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Setter
-public class Cart{
+public class Cart {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
@@ -23,4 +23,6 @@ public class Cart{
     @ElementCollection
     private List<CartEntry> cartEntryList = new ArrayList<>();
 
+    @Column(name = "total_price")
+    private Double totalPrice;
 }
