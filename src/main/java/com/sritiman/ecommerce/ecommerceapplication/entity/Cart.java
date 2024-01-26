@@ -25,4 +25,7 @@ public class Cart {
 
     @Column(name = "total_price")
     private Double totalPrice;
+
+    @OneToOne(targetEntity = Address.class, cascade = {CascadeType.ALL})
+    private Address deliveryAddress;
 }

@@ -15,7 +15,6 @@ import javax.persistence.*;
 public class HomePageDisplayedCategory {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     long id;
     String name;
     @OneToOne(targetEntity = Category.class, cascade = CascadeType.ALL)

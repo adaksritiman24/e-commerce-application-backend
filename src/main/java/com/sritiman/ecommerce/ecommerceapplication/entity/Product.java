@@ -14,7 +14,6 @@ import java.util.List;
 public class Product {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     long id;
 
     String name;

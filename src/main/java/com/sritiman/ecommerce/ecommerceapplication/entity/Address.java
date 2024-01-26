@@ -23,15 +23,20 @@ public class Address {
     private String city;
     private String country;
     private String pincode;
+    private String phone;
+    private String email;
 
     @Override
     public String toString() {
         return "Address{" +
-                "house='" + house + '\'' +
+                "id=" + id +
+                ", house='" + house + '\'' +
                 ", locality='" + locality + '\'' +
                 ", city='" + city + '\'' +
                 ", country='" + country + '\'' +
                 ", pincode='" + pincode + '\'' +
+                ", phone='" + phone + '\'' +
+                ", email='" + email + '\'' +
                 '}';
     }
 }
