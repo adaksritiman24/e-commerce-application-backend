@@ -1,9 +1,6 @@
 package com.sritiman.ecommerce.ecommerceapplication.service;
 
-import com.sritiman.ecommerce.ecommerceapplication.entity.Cart;
-import com.sritiman.ecommerce.ecommerceapplication.entity.CartEntry;
-import com.sritiman.ecommerce.ecommerceapplication.entity.Customer;
-import com.sritiman.ecommerce.ecommerceapplication.entity.Product;
+import com.sritiman.ecommerce.ecommerceapplication.entity.*;
 import com.sritiman.ecommerce.ecommerceapplication.exceptions.CartNotFoundException;
 import com.sritiman.ecommerce.ecommerceapplication.model.DeleteCartEntryRequest;
 import com.sritiman.ecommerce.ecommerceapplication.model.UpdateCartRequest;
@@ -47,6 +44,7 @@ public class CartService {
 
     public Cart updateCart(String username, UpdateCartRequest updateCartRequest) throws Exception {
         Cart customerCart = getCartForCustomer(username);
+        populateDeliveryAddress(customerCart, customerRepository.findByUsername(username));
         List<CartEntry> cartEntryList = customerCart.getCartEntryList();
         if (!isValidProductId(updateCartRequest.getProductId())) {
             LOG.info("Product not found for cart: {}", customerCart.getId());
@@ -81,6 +79,15 @@ public class CartService {
         return getCartForCustomer(username);
     }
 
+    private void populateDeliveryAddress(Cart customerCart, Customer customer) {
+        if(Objects.isNull(customerCart.getDeliveryAddress()) && Objects.nonNull(customer) && Objects.nonNull(customer.getAddress())) {
+            Address deliveryAddress = createDeliveryAddress(customer.getAddress());
+            deliveryAddress.setPhone(customer.getPhoneNumber());
+            deliveryAddress.setEmail(customer.getEmail());
+            customerCart.setDeliveryAddress(deliveryAddress);
+        }
+    }
+
     public Cart removeCartEntry(String username, DeleteCartEntryRequest deleteCartEntryRequest) throws Exception {
         Long productId = deleteCartEntryRequest.getProductId();
         Cart cart = getCartForCustomer(username);
@@ -93,6 +100,7 @@ public class CartService {
 
     public Cart mergeCart(String username, List<UpdateCartRequest> fromCartItems) throws Exception {
         Cart cart = getCartForCustomer(username);
+        populateDeliveryAddress(cart, customerRepository.findByUsername(username));
         List<CartEntry> toCartItems = cart.getCartEntryList();
         if (Objects.isNull(fromCartItems) || fromCartItems.isEmpty()) {
             return cart;
@@ -117,6 +125,16 @@ public class CartService {
         cartRepository.save(cart);
         return getCartForCustomer(username);
 
+    }
+
+    private Address createDeliveryAddress(Address address) {
+        Address deliveryAddress = new Address();
+        deliveryAddress.setCity(address.getCity());
+        deliveryAddress.setHouse(address.getHouse());
+        deliveryAddress.setCountry(address.getCountry());
+        deliveryAddress.setLocality(address.getLocality());
+        deliveryAddress.setPincode(address.getPincode());
+        return  deliveryAddress;
     }
 
     private CartEntry createNewCartEntry(Long productId, int quantity) {
