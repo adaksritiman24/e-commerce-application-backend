@@ -20,7 +20,7 @@ public class CustomerDataStub implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
 
         String password = BCrypt.hashpw("Password@1", BCrypt.gensalt());
 
@@ -43,7 +43,11 @@ public class CustomerDataStub implements CommandLineRunner {
 
         System.out.println(customer);
         try {
-            customerRepository.delete(customerRepository.findByUsername("sritiman24"));
+            try {
+                customerRepository.delete(customerRepository.findByUsername("sritiman24"));
+            } catch (Exception ex) {
+                System.out.println("[FAIL]: " + ex.getMessage());
+            }
             customerRepository.save(customer);
 
         } catch (Exception e) {

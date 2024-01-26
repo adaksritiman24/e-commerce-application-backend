@@ -28,7 +28,58 @@ public class ProductDataStub implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
+
+        String name = "Moto edge 70 (Midnight Blue, 4GB, 64GB Storage)";
+        double normalPrice = 52000;
+        double discountedPrice = 48599;
+        String brand = "Motorola";
+        int rating = 0;
+        String seller = "Buzz Smartphones";
+        List<ProductImage> productImages= List.of(
+                new ProductImage("/buzz/imgs/products/motorola-edge-70.jpeg")
+        );
+        Product product = new Product();
+
+        List<Keyword> keywords = Arrays.asList(
+                new Keyword("moto"),
+                new Keyword("motorola"),
+                new Keyword("edge 70"),
+                new Keyword("edge"),
+                new Keyword("mobiles"),
+                new Keyword("mobile"),
+                new Keyword("smartphone"),
+                new Keyword("smartphones"),
+                new Keyword("phone"),
+                new Keyword("phones")
+        );
+        List<ProductDetail> productDetails = Arrays.asList(
+                new ProductDetail("6000mAh lithium-ion battery, 1 year manufacturer warranty for device and 6 months manufacturer warranty for in-box accessories including batteries from the date of purchase"),
+                new ProductDetail("Upto 12GB RAM with RAM Plus | 64GB internal memory expandable up to 1TB| Dual Sim (Nano)"),
+                new ProductDetail("50MP+5MP+2MP Triple camera setup- True 50MP (F1.8) main camera +5MP(F2.2)+ 2MP (F2.4) | 8MP (F2.2) front cam"),
+                new ProductDetail("Android 12,One UI Core 4 with a powerful Octa Core Processor"),
+                new ProductDetail("16.72 centimeters (6.6-inch) FHD+ LCD - infinity O Display, FHD+ resolution with 1080 x 2408 pixels resolution, 401 PPI with 16M color")
+        );
+        product.setId(1L);
+        product.setName(name);
+        product.setNormalPrice(normalPrice);
+        product.setDiscountedPrice(discountedPrice);
+        product.setBrand(brand);
+        product.setRating(rating);
+        product.setSeller(seller);
+        product.setImages(productImages);
+        product.setKeywords(keywords);
+        product.setCategory(
+                categoryRepository.findByName("smartphones")
+        );
+        product.setProductDetails(productDetails);
+
+        try {
+            productRepository.save(product);
+        }
+        catch (Exception e) {
+            System.out.println("[FAIL]: " + e.getMessage());
+        }
 
 //        Product p1 = productRepository.findById(16L).orElse(null);
 //        Product p1 = productRepository.findById(58L).orElse(null);
