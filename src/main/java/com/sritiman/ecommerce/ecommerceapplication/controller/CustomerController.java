@@ -32,7 +32,7 @@ public class CustomerController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
-        LoginResponse loginResponse = customerService.login(loginRequest.getUsername(), loginRequest.getPassword());
+        LoginResponse loginResponse = customerService.login(loginRequest.getUsername(), loginRequest.getPassword(), loginRequest.getAnonymousCartUsername());
         return new ResponseEntity<>(loginResponse, HttpStatus.OK);
     }
 

@@ -31,6 +31,21 @@ public class CartService {
         this.productRepository = productRepository;
     }
 
+    public Cart getAnonymousCart(String anonymousCustomerId) {
+        Customer anonymousCustomer = customerRepository.findByUsername(anonymousCustomerId);
+        if(Objects.isNull(anonymousCustomer)) {
+            //create a new anonymous customer in db and attach it to an anonymous cart
+            Customer customer = new Customer();
+            customer.setUsername(anonymousCustomerId);
+            customer.setCart(new Cart());
+            customerRepository.save(customer);
+            return customer.getCart();
+        }
+        Cart anonymousCustomerCart = anonymousCustomer.getCart();
+        calculateCart(anonymousCustomerCart.getId());
+        return anonymousCustomerCart;
+    }
+
     public Cart getCartForCustomer(String username) throws Exception {
         Customer customer = customerRepository.findByUsername(username);
         LOG.info("Customer: {}", customer);

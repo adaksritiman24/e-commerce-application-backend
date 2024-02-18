@@ -1,13 +1,17 @@
 package com.sritiman.ecommerce.ecommerceapplication.service;
 
+import com.sritiman.ecommerce.ecommerceapplication.entity.Cart;
 import com.sritiman.ecommerce.ecommerceapplication.entity.Customer;
 import com.sritiman.ecommerce.ecommerceapplication.exceptions.CustomerSignupDatabaseException;
 import com.sritiman.ecommerce.ecommerceapplication.exceptions.LoginException;
 import com.sritiman.ecommerce.ecommerceapplication.model.LoginResponse;
 import com.sritiman.ecommerce.ecommerceapplication.model.SignupRequest;
 import com.sritiman.ecommerce.ecommerceapplication.model.SignupResponse;
+import com.sritiman.ecommerce.ecommerceapplication.model.UpdateCartRequest;
 import com.sritiman.ecommerce.ecommerceapplication.repository.CustomerRepository;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
@@ -15,17 +19,22 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class CustomerService {
 
     private final ModelMapper modelMapper = new ModelMapper();
+    private final Logger LOG = LoggerFactory.getLogger(CustomerService.class);
 
     private CustomerRepository customerRepository;
+    private CartService cartService;
 
     @Autowired
-    public CustomerService(CustomerRepository customerRepository) {
+    public CustomerService(CustomerRepository customerRepository, CartService cartService) {
         this.customerRepository = customerRepository;
+        this.cartService = cartService;
     }
 
     public SignupResponse signup(SignupRequest signupRequest) {
@@ -46,12 +55,29 @@ public class CustomerService {
     }
 
 
-    public LoginResponse login(String username, String password) throws LoginException {
+    public LoginResponse login(String username, String password, String anonymousCartUsername) throws LoginException {
         Customer customer = customerRepository.findByUsername(username);
         if(customer != null) {
             boolean matchFound = BCrypt.checkpw(password, customer.getPassword());
-            if(matchFound)
+            if(matchFound) {
+                //merge with existing cart
+                Customer anonymousUser = customerRepository.findByUsername(anonymousCartUsername);
+                if(Objects.nonNull(anonymousUser)) {
+                    Cart anonymousUserCart = anonymousUser.getCart();
+                    try {
+                        cartService.mergeCart(username, anonymousUserCart.getCartEntryList()
+                                .stream()
+                                .map(cartEntry -> new UpdateCartRequest(cartEntry.getProductId(), cartEntry.getQuantity()))
+                                .collect(Collectors.toList()));
+                        //Remove anonymous user once cartMerge is done
+                        customerRepository.delete(anonymousUser);
+                    }
+                    catch (Exception e) {
+                        LOG.error(e.getMessage());
+                    }
+                }
                 return new LoginResponse(customer,generateNewAuthToken(customer.getUsername(), customer.getPassword()));
+            }
             else
                 throw new LoginException("Invalid-password invalid");
         }

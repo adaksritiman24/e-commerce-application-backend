@@ -32,10 +32,10 @@ public class CartController {
         }
     }
 
-    @GetMapping("/anonymous/{cartId}")
-    public ResponseEntity<String> getAnonymousCart(@PathVariable String cartId){
+    @GetMapping("/anonymous/{customerId}")
+    public ResponseEntity<Cart> getAnonymousCart(@PathVariable String customerId){
         try {
-            return new ResponseEntity<>(cartId, HttpStatus.OK);
+            return new ResponseEntity<>(cartService.getAnonymousCart(customerId), HttpStatus.OK);
         }catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
