@@ -1,8 +1,26 @@
 version: "3"
 
 services:
-  ecommerce-mysql-db:
+  ecommerce-backend-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ecommerce-backend-api
+    container_name: ecommerce-backend-api
+    ports:
+      - "8080:8080"
+    environment:
+      - MYSQL_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/ecommerce
+    volumes:
+      - ~/.gradle:/root/.gradle
+    networks:
+      - ecommnet
+    depends_on:
+      - db
+
+  db:
     image: mysql:8.0
+    container_name: mysql-db
     ports:
       - "3306:3306"
     expose:
@@ -14,6 +32,11 @@ services:
       MYSQL_DATABASE: ecommerce
     volumes:
       - my-db:/var/lib/mysql
+      - ./mysql-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - ecommnet
 
 volumes:
   my-db:
+networks:
+  ecommnet:
