@@ -32,6 +32,16 @@ public class CartController {
         }
     }
 
+    @GetMapping("/anonymous/{cartId}")
+    public ResponseEntity<String> getAnonymousCart(@PathVariable String cartId){
+        try {
+            return new ResponseEntity<>(cartId, HttpStatus.OK);
+        }catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+
     @PostMapping("/{username}")
     public ResponseEntity<Cart> updateCart(@PathVariable String username,
                                         @RequestBody UpdateCartRequest updateCartRequest){
