@@ -25,6 +25,7 @@ public class Address {
     private String pincode;
     private String phone;
     private String email;
+    private String name;
 
     @Override
     public String toString() {
@@ -37,6 +38,7 @@ public class Address {
                 ", pincode='" + pincode + '\'' +
                 ", phone='" + phone + '\'' +
                 ", email='" + email + '\'' +
+                ", name='" + name + '\'' +
                 '}';
     }
 }

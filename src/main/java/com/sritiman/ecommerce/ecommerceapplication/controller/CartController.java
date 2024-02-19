@@ -1,6 +1,7 @@
 package com.sritiman.ecommerce.ecommerceapplication.controller;
 
 import com.sritiman.ecommerce.ecommerceapplication.entity.Cart;
+import com.sritiman.ecommerce.ecommerceapplication.model.AddDeliveryAddressRequest;
 import com.sritiman.ecommerce.ecommerceapplication.model.DeleteCartEntryRequest;
 import com.sritiman.ecommerce.ecommerceapplication.model.UpdateCartRequest;
 import com.sritiman.ecommerce.ecommerceapplication.service.CartService;
@@ -71,5 +72,11 @@ public class CartController {
         }catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @PostMapping("/delivery_address/{username}")
+    public ResponseEntity<String> addDeliveryAddress(@PathVariable String username,
+                                                     @RequestBody AddDeliveryAddressRequest addDeliveryAddressRequest){
+         return new ResponseEntity<>(cartService.addDeliveryAddress(addDeliveryAddressRequest, username), HttpStatus.OK);
     }
 }

@@ -2,6 +2,7 @@ package com.sritiman.ecommerce.ecommerceapplication.service;
 
 import com.sritiman.ecommerce.ecommerceapplication.entity.*;
 import com.sritiman.ecommerce.ecommerceapplication.exceptions.CartNotFoundException;
+import com.sritiman.ecommerce.ecommerceapplication.model.AddDeliveryAddressRequest;
 import com.sritiman.ecommerce.ecommerceapplication.model.DeleteCartEntryRequest;
 import com.sritiman.ecommerce.ecommerceapplication.model.UpdateCartRequest;
 import com.sritiman.ecommerce.ecommerceapplication.repository.CartRepository;
@@ -99,6 +100,7 @@ public class CartService {
             Address deliveryAddress = createDeliveryAddress(customer.getAddress());
             deliveryAddress.setPhone(customer.getPhoneNumber());
             deliveryAddress.setEmail(customer.getEmail());
+            deliveryAddress.setName(customer.getName());
             customerCart.setDeliveryAddress(deliveryAddress);
         }
     }
@@ -182,5 +184,25 @@ public class CartService {
         }
         cart.setTotalPrice(cartTotalPrice.setScale(2, RoundingMode.HALF_EVEN).doubleValue());
         cartRepository.save(cart);
+    }
+
+    public String addDeliveryAddress(AddDeliveryAddressRequest deliveryAddressRequest, String username) {
+        Customer customer = customerRepository.findByUsername(username);
+        if(Objects.nonNull(customer)) {
+            Address address = new Address();
+            address.setName(deliveryAddressRequest.getName());
+            address.setCountry(deliveryAddressRequest.getCountry());
+            address.setCity(deliveryAddressRequest.getCity());
+            address.setHouse(deliveryAddressRequest.getHouse());
+            address.setLocality(deliveryAddressRequest.getLocality());
+            address.setPincode(deliveryAddressRequest.getPincode());
+            address.setEmail(deliveryAddressRequest.getEmail());
+            address.setPhone(deliveryAddressRequest.getPhone());
+
+            customer.getCart().setDeliveryAddress(address);
+            customerRepository.save(customer);
+            return "success";
+        }
+        return "failed";
     }
 }
