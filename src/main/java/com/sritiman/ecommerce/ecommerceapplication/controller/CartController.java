@@ -62,6 +62,7 @@ public class CartController {
         }
     }
 
+    @Deprecated
     @PostMapping("/{username}/merge")
     public ResponseEntity<Cart> mergeCart(@PathVariable String username,
                                           @RequestBody List<UpdateCartRequest> fromCartItems) {
