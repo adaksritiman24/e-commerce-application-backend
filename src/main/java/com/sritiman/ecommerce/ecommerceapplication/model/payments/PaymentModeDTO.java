@@ -4,7 +4,7 @@ import lombok.Getter;
 
 
 @Getter
-public enum PaymentMode {
-    CREDIT_CARD,
-    DEBIT_CARD
+public enum PaymentModeDTO {
+    BANK_CARD,
+    GIFT_CARD
 }

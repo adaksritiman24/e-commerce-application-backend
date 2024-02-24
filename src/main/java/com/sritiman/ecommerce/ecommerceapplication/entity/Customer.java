@@ -8,6 +8,8 @@ import lombok.Setter;
 import org.springframework.validation.annotation.Validated;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity(name = "customer")
 @NoArgsConstructor
@@ -38,6 +40,9 @@ public class Customer {
 
     @OneToOne(targetEntity = Cart.class, cascade = {CascadeType.ALL})
     private Cart cart;
+
+    @OneToMany
+    private List<Order> orders = new ArrayList<>();
 
     @Override
     public String toString() {

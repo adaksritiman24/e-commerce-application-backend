@@ -41,7 +41,7 @@ public class CustomerDataStub implements CommandLineRunner {
         customer.setPassword(password);
         customer.setCart(new Cart());
 
-        System.out.println(customer);
+        System.out.println("Customer: "+ customer);
         try {
             try {
                 customerRepository.delete(customerRepository.findByUsername("sritiman24"));

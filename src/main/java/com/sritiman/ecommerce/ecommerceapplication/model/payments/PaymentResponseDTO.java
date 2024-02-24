@@ -9,9 +9,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class CostDTO {
-    private double totalTax;
-    private double subTotal;
-    private double totalCost;
-    private double shippingCost;
+public class PaymentResponseDTO {
+    private String status;
+    private Long orderId;
 }

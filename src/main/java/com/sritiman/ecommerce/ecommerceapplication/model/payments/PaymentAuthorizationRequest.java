@@ -14,16 +14,13 @@ import lombok.Setter;
 public class PaymentAuthorizationRequest {
 
     @JsonProperty(required = true)
-    private PaymentMode paymentMode;
+    private PaymentModeDTO paymentMode;
 
     @JsonProperty(required = true)
     private String customerId;
 
-    @JsonProperty(required = true)
-    private DebitCardDTO debitCard;
-
-    @JsonProperty(required = true)
-    private BillingRequest billing;
+    private BankCardDTO bankCard;
+    private GiftCardDTO giftCard;
 
     @JsonProperty(required = true)
     private CostDTO cost;
