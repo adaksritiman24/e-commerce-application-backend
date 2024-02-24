@@ -1,26 +1,43 @@
 package com.sritiman.ecommerce.ecommerceapplication.service;
 
 import com.sritiman.ecommerce.ecommerceapplication.entity.*;
+import com.sritiman.ecommerce.ecommerceapplication.repository.CartRepository;
+import com.sritiman.ecommerce.ecommerceapplication.repository.CustomerRepository;
 import com.sritiman.ecommerce.ecommerceapplication.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class OrderService {
     OrderRepository orderRepository;
+    CartRepository cartRepository;
+    CustomerRepository customerRepository;
 
     @Autowired
-    public OrderService(OrderRepository orderRepository) {
+    public OrderService(OrderRepository orderRepository, CartRepository cartRepository, CustomerRepository customerRepository) {
         this.orderRepository = orderRepository;
+        this.cartRepository = cartRepository;
+        this.customerRepository = customerRepository;
     }
 
     public Order placeOrder(Customer customer, PaymentDetails paymentDetails){
         Cart customerCart = customer.getCart();
         Order order = cloneCartToOrder(customerCart, paymentDetails);
         order.setCustomer(customer);
+
+        if(Objects.isNull(customer.getEmail())) { //guest customer
+            customer.setCart(null);
+        }
+        else{
+            customer.setCart(new Cart());
+        }
+        customerRepository.save(customer);
+        cartRepository.delete(customerCart);
+
         return orderRepository.save(order);
     }
 
@@ -30,7 +47,6 @@ public class OrderService {
         order.setTotalPrice(cart.getTotalPrice());
         order.setDeliveryAddress(getCustomerDeliveryAddress(cart.getDeliveryAddress()));
         order.setPaymentDetails(paymentDetails);
-
         return order;
     }
 
