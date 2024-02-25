@@ -29,7 +29,7 @@ public class AccountsDataStub implements CommandLineRunner {
             businessAccount.setAccountNumber(BUZZ_BUSINESS_ACCOUNT_NUMBER);
             businessAccount.setCardNumber("4000300020001000");
             businessAccount.setCvv("123");
-            businessAccount.setExpDate(new Date());
+            businessAccount.setExpDate("12/34");
             businessAccount.setGiftCards(Collections.emptyList());
             businessAccount.setName("Buzz.co.in");
             accountsRepository.save(businessAccount);
@@ -39,7 +39,7 @@ public class AccountsDataStub implements CommandLineRunner {
             customerAccount.setAccountNumber(CUSTOMER_DUMMY_ACCOUNT_NUMBER);
             customerAccount.setCardNumber("4111111111111111");
             customerAccount.setCvv("123");
-            customerAccount.setExpDate(new Date());
+            customerAccount.setExpDate("12/34");
             customerAccount.setGiftCards(Collections.emptyList());
             customerAccount.setName("Sritiman Adak");
             accountsRepository.save(customerAccount);

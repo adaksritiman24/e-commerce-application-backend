@@ -1,29 +1,58 @@
 package com.sritiman.ecommerce.ecommerceapplication.service;
 
 import com.sritiman.ecommerce.ecommerceapplication.entity.*;
+import com.sritiman.ecommerce.ecommerceapplication.model.OrderDTO;
 import com.sritiman.ecommerce.ecommerceapplication.repository.CartRepository;
 import com.sritiman.ecommerce.ecommerceapplication.repository.CustomerRepository;
 import com.sritiman.ecommerce.ecommerceapplication.repository.OrderRepository;
+import com.sritiman.ecommerce.ecommerceapplication.repository.ProductRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class OrderService {
     OrderRepository orderRepository;
     CartRepository cartRepository;
     CustomerRepository customerRepository;
+    ProductRepository productRepository;
 
     @Autowired
-    public OrderService(OrderRepository orderRepository, CartRepository cartRepository, CustomerRepository customerRepository) {
+    public OrderService(OrderRepository orderRepository, CartRepository cartRepository, CustomerRepository customerRepository, ProductRepository productRepository) {
         this.orderRepository = orderRepository;
         this.cartRepository = cartRepository;
         this.customerRepository = customerRepository;
+        this.productRepository = productRepository;
     }
 
+    public OrderDTO getOrder(Long orderId) {
+        Optional<Order> orderOpt = orderRepository.findById(orderId);
+        ModelMapper modelMapper = new ModelMapper();
+        if(orderOpt.isPresent()) {
+            OrderDTO orderDto = modelMapper.map(orderOpt.get(), OrderDTO.class);
+            orderDto.getOrderEntryList()
+                    .forEach(orderEntry -> {
+                        Product productInfo = productRepository.findById(orderEntry.getProductId()).orElse(null);
+                        if(Objects.nonNull(productInfo)) {
+                            orderEntry.setId(productInfo.getId());
+                            orderEntry.setName(productInfo.getName());
+                            orderEntry.setBrand(productInfo.getBrand());
+                            orderEntry.setDiscountedPrice(productInfo.getDiscountedPrice());
+                            orderEntry.setImages(productInfo.getImages());
+                        }
+                    });
+            return orderDto;
+        }
+        return null;
+    }
+
+    @Transactional
     public Order placeOrder(Customer customer, PaymentDetails paymentDetails){
         Cart customerCart = customer.getCart();
         Order order = cloneCartToOrder(customerCart, paymentDetails);

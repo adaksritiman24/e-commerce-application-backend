@@ -13,6 +13,7 @@ import com.sritiman.ecommerce.ecommerceapplication.model.payments.PaymentRespons
 import com.sritiman.ecommerce.ecommerceapplication.repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
 

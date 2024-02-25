@@ -8,7 +8,6 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,7 +20,7 @@ public class Accounts {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+    private Long id;
 
     @Column(name = "account_number", unique = true, nullable = false)
     private String accountNumber;
@@ -32,11 +31,25 @@ public class Accounts {
     @Column(name="cvv", nullable = false)
     private String cvv;
     @Column(name="exp_date")
-    private Date expDate;
+    private String expDate;
     @Column(name="balance", nullable = false)
     private Double balance;
 
     @ElementCollection
     @Column(name="gift_cards")
     private List<GiftCards> giftCards = new ArrayList<>();
+
+    @Override
+    public String toString() {
+        return "Accounts{" +
+                "id=" + id +
+                ", accountNumber='" + accountNumber + '\'' +
+                ", cardNumber='" + cardNumber + '\'' +
+                ", name='" + name + '\'' +
+                ", cvv='" + cvv + '\'' +
+                ", expDate='" + expDate + '\'' +
+                ", balance=" + balance +
+                ", giftCards=" + giftCards +
+                '}';
+    }
 }

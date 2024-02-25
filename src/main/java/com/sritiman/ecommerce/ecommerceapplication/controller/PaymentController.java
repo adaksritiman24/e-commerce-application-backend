@@ -10,13 +10,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/payments")
+@CrossOrigin
 public class PaymentController {
 
     Logger LOGGER = LoggerFactory.getLogger(this.getClass());
@@ -29,7 +27,8 @@ public class PaymentController {
 
     @PostMapping("/v1/capture")
     public ResponseEntity<PaymentResponseDTO> authorize(@RequestBody PaymentAuthorizationRequest paymentAuthorizationRequest) throws JsonProcessingException {
-        String paymentAuthorizationRequestString = new ObjectMapper().writeValueAsString(paymentAuthorizationRequest);
-        return new ResponseEntity<>(paymentService.capturePayment(paymentAuthorizationRequest), HttpStatus.OK);
+        PaymentResponseDTO paymentResponseDTO = paymentService.capturePayment(paymentAuthorizationRequest);
+        System.out.println("Payment: "+paymentResponseDTO);
+        return new ResponseEntity<>(paymentResponseDTO, HttpStatus.OK);
     }
 }
