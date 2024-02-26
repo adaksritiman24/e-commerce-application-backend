@@ -35,6 +35,7 @@ public class ProductDataStub implements CommandLineRunner {
 
         //first stub
         try {
+            product.setAssociatedProducts(List.of(new AssociatedProduct(2L)));
             productRepository.save(product);
         }
         catch (Exception e) {
@@ -43,6 +44,7 @@ public class ProductDataStub implements CommandLineRunner {
 
         //second stub
         try {
+            product1.setAssociatedProducts(List.of(new AssociatedProduct(1L)));
             productRepository.save(product1);
         }
         catch (Exception e) {
