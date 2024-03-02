@@ -11,10 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class OrderService {
@@ -57,6 +54,7 @@ public class OrderService {
         Cart customerCart = customer.getCart();
         Order order = cloneCartToOrder(customerCart, paymentDetails);
         order.setCustomer(customer);
+        order.setStatus(OrderStatus.CREATED);
 
         if(Objects.isNull(customer.getEmail())) { //guest customer
             customer.setCart(null);
@@ -104,5 +102,13 @@ public class OrderService {
         address.setCity(cartAddress.getCity());
         address.setCountry(cartAddress.getCountry());
         return address;
+    }
+
+    public List<Order> getAllOrders(String username) {
+        Customer customer = customerRepository.findByUsername(username);
+        if(Objects.nonNull(customer)) {
+            return orderRepository.findByCustomerUsername(customer.getId());
+        }
+        return Collections.emptyList();
     }
 }

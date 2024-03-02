@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.sql.Date;
 import java.util.List;
 
 @AllArgsConstructor
@@ -18,6 +19,7 @@ public class OrderDTO {
     private long id;
     private List<OrderEntryDTO> orderEntryList;
     private Double totalPrice;
+    private Date orderDate;
     private Address deliveryAddress;
     private PaymentDetails paymentDetails;
     private Customer customer;
