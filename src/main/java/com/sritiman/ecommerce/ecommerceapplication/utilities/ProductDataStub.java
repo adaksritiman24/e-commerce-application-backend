@@ -32,6 +32,7 @@ public class ProductDataStub implements CommandLineRunner {
 
         Product product = getMoto();
         Product product1 = getSamsung();
+        Product product2 = getRealme();
 
         //first stub
         try {
@@ -46,6 +47,15 @@ public class ProductDataStub implements CommandLineRunner {
         try {
             product1.setAssociatedProducts(List.of(new AssociatedProduct(1L)));
             productRepository.save(product1);
+        }
+        catch (Exception e) {
+            System.out.println("[FAIL]: " + e.getMessage());
+        }
+
+        //third stub
+        try {
+            product2.setAssociatedProducts(List.of(new AssociatedProduct(1L),new AssociatedProduct(2L)));
+            productRepository.save(product2);
         }
         catch (Exception e) {
             System.out.println("[FAIL]: " + e.getMessage());
@@ -132,6 +142,54 @@ public class ProductDataStub implements CommandLineRunner {
                 new ProductDetail("16.72 centimeters (6.6-inch) FHD+ LCD - infinity O Display, FHD+ resolution with 1080 x 2408 pixels resolution, 401 PPI with 16M color")
         );
         product.setId(2L);
+        product.setName(name);
+        product.setNormalPrice(normalPrice);
+        product.setDiscountedPrice(discountedPrice);
+        product.setBrand(brand);
+        product.setRating(rating);
+        product.setSeller(seller);
+        product.setImages(productImages);
+        product.setKeywords(keywords);
+        product.setCategory(
+                categoryRepository.findByName("smartphones")
+        );
+        product.setProductDetails(productDetails);
+        return product;
+    }
+
+    private Product getRealme() {
+        String name = "Realme Narzo 7";
+        double normalPrice = 11099;
+        double discountedPrice = 7699;
+        String brand = "Realme";
+        int rating = 0;
+        String seller = "LMN Smartphones India";
+        List<ProductImage> productImages= List.of(
+                new ProductImage("/buzz/imgs/products/realme-narzo-7.jpg"),
+                new ProductImage("/buzz/imgs/products/realme-narzo-7-2.jpg")
+        );
+        Product product = new Product();
+
+        List<Keyword> keywords = Arrays.asList(
+                new Keyword("realme"),
+                new Keyword("realme narzo"),
+                new Keyword("realme narzo 7"),
+                new Keyword("narzo 7"),
+                new Keyword("narzo"),
+                new Keyword("mobile"),
+                new Keyword("smartphone"),
+                new Keyword("smartphones"),
+                new Keyword("phone"),
+                new Keyword("phones")
+        );
+        List<ProductDetail> productDetails = Arrays.asList(
+                new ProductDetail("6500mAh lithium-ion battery, 1 year manufacturer warranty for device and 6 months manufacturer warranty for in-box accessories including batteries from the date of purchase"),
+                new ProductDetail("Upto 4GB RAM with RAM Plus | 64GB internal memory expandable up to 1TB| Dual Sim (Nano)"),
+                new ProductDetail("50MP+5MP+2MP Triple camera setup- True 50MP (F1.8) main camera +5MP(F2.2)+ 2MP (F2.4) | 8MP (F2.2) front cam"),
+                new ProductDetail("Android 12,One UI Core 4 with a powerful Octa Core Processor"),
+                new ProductDetail("16.72 centimeters (6.6-inch) FHD+ LCD - infinity O Display, FHD+ resolution with 1080 x 2408 pixels resolution, 401 PPI with 16M color")
+        );
+        product.setId(3L);
         product.setName(name);
         product.setNormalPrice(normalPrice);
         product.setDiscountedPrice(discountedPrice);
