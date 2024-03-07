@@ -1,4 +1,4 @@
-FROM gradle:jdk17
+FROM gradle:jdk21
 
 EXPOSE 8080
 

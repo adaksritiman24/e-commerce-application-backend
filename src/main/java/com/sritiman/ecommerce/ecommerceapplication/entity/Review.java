@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Value;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Embeddable
 @NoArgsConstructor
