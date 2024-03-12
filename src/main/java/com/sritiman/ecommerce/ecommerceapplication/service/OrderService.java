@@ -1,6 +1,7 @@
 package com.sritiman.ecommerce.ecommerceapplication.service;
 
 import com.sritiman.ecommerce.ecommerceapplication.entity.*;
+import com.sritiman.ecommerce.ecommerceapplication.exceptions.OrderNotFoundException;
 import com.sritiman.ecommerce.ecommerceapplication.model.OrderDTO;
 import com.sritiman.ecommerce.ecommerceapplication.repository.CartRepository;
 import com.sritiman.ecommerce.ecommerceapplication.repository.CustomerRepository;
@@ -46,7 +47,7 @@ public class OrderService {
                     });
             return orderDto;
         }
-        return null;
+        throw new OrderNotFoundException("Order Not Found!");
     }
 
     @Transactional

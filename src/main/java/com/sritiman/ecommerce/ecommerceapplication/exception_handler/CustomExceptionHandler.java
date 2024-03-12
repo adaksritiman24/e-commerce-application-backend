@@ -3,6 +3,7 @@ package com.sritiman.ecommerce.ecommerceapplication.exception_handler;
 import com.sritiman.ecommerce.ecommerceapplication.exceptions.CustomerNotFoundException;
 import com.sritiman.ecommerce.ecommerceapplication.exceptions.CustomerSignupDatabaseException;
 import com.sritiman.ecommerce.ecommerceapplication.exceptions.LoginException;
+import com.sritiman.ecommerce.ecommerceapplication.exceptions.OrderNotFoundException;
 import com.sritiman.ecommerce.ecommerceapplication.exceptions.payments.AccountNotFoundException;
 import com.sritiman.ecommerce.ecommerceapplication.exceptions.payments.InsufficientBalanceException;
 import com.sritiman.ecommerce.ecommerceapplication.exceptions.payments.UnsupportedPaymentModeException;
@@ -43,6 +44,11 @@ public class CustomExceptionHandler {
     @ExceptionHandler(CustomerNotFoundException.class)
     public ResponseEntity<ErrorResponse> customerNotFoundError(CustomerNotFoundException customerNotFoundException) {
         return new ResponseEntity<>(new ErrorResponse(customerNotFoundException.getMessage(), null), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(OrderNotFoundException.class)
+    public ResponseEntity<ErrorResponse> orderNotFoundError(OrderNotFoundException orderNotFoundException) {
+        return new ResponseEntity<>(new ErrorResponse(orderNotFoundException.getMessage(), null), HttpStatus.NOT_FOUND);
     }
 
 }
