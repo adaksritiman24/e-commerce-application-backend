@@ -2,6 +2,7 @@ package com.sritiman.ecommerce.ecommerceapplication.model;
 
 import com.sritiman.ecommerce.ecommerceapplication.entity.Address;
 import com.sritiman.ecommerce.ecommerceapplication.entity.Customer;
+import com.sritiman.ecommerce.ecommerceapplication.entity.OrderStatus;
 import com.sritiman.ecommerce.ecommerceapplication.entity.PaymentDetails;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,4 +24,5 @@ public class OrderDTO {
     private Address deliveryAddress;
     private PaymentDetails paymentDetails;
     private Customer customer;
+    private OrderStatus status;
 }
