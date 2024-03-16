@@ -45,7 +45,28 @@ public class CustomerService {
         checkForDuplicateEmail(customerToBeCreated.getEmail());
 
         try{
+            customerToBeCreated.setCart(new Cart());
+            customerToBeCreated.getAddress().setPhone(customerToBeCreated.getPhoneNumber());
+            customerToBeCreated.getAddress().setEmail(customerToBeCreated.getEmail());
+            customerToBeCreated.getAddress().setName(customerToBeCreated.getName());
+
             Customer newCustomerData = customerRepository.save(customerToBeCreated);
+            //merge with existing cart
+            Customer anonymousUser = customerRepository.findByUsername(signupRequest.getAnonymousCartUsername());
+            if(Objects.nonNull(anonymousUser)) {
+                Cart anonymousUserCart = anonymousUser.getCart();
+                try {
+                    cartService.mergeCart(newCustomerData.getUsername(), anonymousUserCart.getCartEntryList()
+                            .stream()
+                            .map(cartEntry -> new UpdateCartRequest(cartEntry.getProductId(), cartEntry.getQuantity()))
+                            .collect(Collectors.toList()));
+                    //Remove anonymous user once cartMerge is done
+                    customerRepository.delete(anonymousUser);
+                }
+                catch (Exception e) {
+                    LOG.error(e.getMessage());
+                }
+            }
             String token = generateNewAuthToken(newCustomerData.getUsername(),newCustomerData.getPassword());
             return new SignupResponse(newCustomerData, token);
         }

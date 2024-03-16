@@ -17,6 +17,7 @@ public class SignupRequest {
     private AddressRequest address;
     private String phoneNumber;
     private String password;
+    private String anonymousCartUsername;
 
     @Override
     public String toString() {
