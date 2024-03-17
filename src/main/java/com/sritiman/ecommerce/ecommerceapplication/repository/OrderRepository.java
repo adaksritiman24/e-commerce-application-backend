@@ -9,6 +9,6 @@ import java.util.List;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
-    @Query(value = "SELECT * FROM buzz_order o WHERE o.username=:username", nativeQuery = true)
+    @Query(value = "SELECT * FROM buzz_order o WHERE o.username=:username ORDER BY order_date DESC", nativeQuery = true)
     List<Order> findByCustomerUsername(@Param("username") long username);
 }
