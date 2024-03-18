@@ -1,5 +1,6 @@
 package com.sritiman.ecommerce.ecommerceapplication.entity;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +12,7 @@ import java.sql.Date;
 @Embeddable
 @NoArgsConstructor
 @Getter
+@Data
 public class Review {
 
     @OneToOne(targetEntity = Customer.class, cascade = CascadeType.ALL)

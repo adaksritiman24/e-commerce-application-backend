@@ -8,10 +8,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import jakarta.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+
+import java.util.*;
 
 @Component
 @Transactional
@@ -38,8 +36,7 @@ public class ProductDataStub implements CommandLineRunner {
         try {
             product.setAssociatedProducts(List.of(new AssociatedProduct(2L)));
             productRepository.save(product);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             System.out.println("[FAIL]: " + e.getMessage());
         }
 
@@ -47,17 +44,15 @@ public class ProductDataStub implements CommandLineRunner {
         try {
             product1.setAssociatedProducts(List.of(new AssociatedProduct(1L)));
             productRepository.save(product1);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             System.out.println("[FAIL]: " + e.getMessage());
         }
 
         //third stub
         try {
-            product2.setAssociatedProducts(List.of(new AssociatedProduct(1L),new AssociatedProduct(2L)));
+            product2.setAssociatedProducts(List.of(new AssociatedProduct(1L), new AssociatedProduct(2L)));
             productRepository.save(product2);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             System.out.println("[FAIL]: " + e.getMessage());
         }
     }
@@ -69,10 +64,11 @@ public class ProductDataStub implements CommandLineRunner {
         String brand = "Motorola";
         int rating = 0;
         String seller = "Buzz Smartphones";
-        List<ProductImage> productImages= List.of(
+        List<ProductImage> productImages = List.of(
                 new ProductImage("/buzz/imgs/products/motorola-edge-70.jpeg")
         );
         Product product = new Product();
+        restoreExistingReviews(product);
 
         List<Keyword> keywords = Arrays.asList(
                 new Keyword("moto"),
@@ -109,6 +105,13 @@ public class ProductDataStub implements CommandLineRunner {
         return product;
     }
 
+    private void restoreExistingReviews(Product product) {
+        Optional<Product> productOPT = productRepository.findById(1L);
+        if (productOPT.isPresent()) {
+            product.setReviews(productOPT.get().getReviews());
+        }
+    }
+
     private Product getSamsung() {
         String name = "Samsung Galaxy s22 ultra (Black, 8GB, 256GB Storage)";
         double normalPrice = 92699;
@@ -116,11 +119,12 @@ public class ProductDataStub implements CommandLineRunner {
         String brand = "Samsung";
         int rating = 0;
         String seller = "Buzz Smartphones";
-        List<ProductImage> productImages= List.of(
+        List<ProductImage> productImages = List.of(
                 new ProductImage("/buzz/imgs/products/s22-ultra.jpg"),
                 new ProductImage("/buzz/imgs/products/s22-ultra-2.jpg")
         );
         Product product = new Product();
+        restoreExistingReviews(product);
 
         List<Keyword> keywords = Arrays.asList(
                 new Keyword("samsung"),
@@ -164,11 +168,12 @@ public class ProductDataStub implements CommandLineRunner {
         String brand = "Realme";
         int rating = 0;
         String seller = "LMN Smartphones India";
-        List<ProductImage> productImages= List.of(
+        List<ProductImage> productImages = List.of(
                 new ProductImage("/buzz/imgs/products/realme-narzo-7.jpg"),
                 new ProductImage("/buzz/imgs/products/realme-narzo-7-2.jpg")
         );
         Product product = new Product();
+        restoreExistingReviews(product);
 
         List<Keyword> keywords = Arrays.asList(
                 new Keyword("realme"),
