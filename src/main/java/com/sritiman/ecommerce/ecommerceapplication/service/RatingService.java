@@ -43,6 +43,9 @@ public class RatingService {
                 newReviews.add(review);
 
                 product.setReviews(newReviews);
+                //update product rating
+                Integer productRating = newReviews.size() > 0 ? newReviews.stream().map(Review::getRating).reduce(0, Integer::sum) / newReviews.size() : 0;
+                product.setRating(productRating);
                 productRepository.save(product);
                 return true;
             }

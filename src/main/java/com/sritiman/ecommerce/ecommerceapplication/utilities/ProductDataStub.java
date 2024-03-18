@@ -62,13 +62,12 @@ public class ProductDataStub implements CommandLineRunner {
         double normalPrice = 52000;
         double discountedPrice = 48599;
         String brand = "Motorola";
-        int rating = 0;
         String seller = "Buzz Smartphones";
         List<ProductImage> productImages = List.of(
                 new ProductImage("/buzz/imgs/products/motorola-edge-70.jpeg")
         );
         Product product = new Product();
-        restoreExistingReviews(product);
+        restoreExistingReviews(product, 1L);
 
         List<Keyword> keywords = Arrays.asList(
                 new Keyword("moto"),
@@ -94,7 +93,6 @@ public class ProductDataStub implements CommandLineRunner {
         product.setNormalPrice(normalPrice);
         product.setDiscountedPrice(discountedPrice);
         product.setBrand(brand);
-        product.setRating(rating);
         product.setSeller(seller);
         product.setImages(productImages);
         product.setKeywords(keywords);
@@ -105,10 +103,14 @@ public class ProductDataStub implements CommandLineRunner {
         return product;
     }
 
-    private void restoreExistingReviews(Product product) {
-        Optional<Product> productOPT = productRepository.findById(1L);
+    private void restoreExistingReviews(Product product, long pid) {
+        Optional<Product> productOPT = productRepository.findById(pid);
         if (productOPT.isPresent()) {
-            product.setReviews(productOPT.get().getReviews());
+            List<Review> newReviews = productOPT.get().getReviews();
+
+            Integer productRating = newReviews.size() > 0 ? newReviews.stream().map(Review::getRating).reduce(0, Integer::sum) / newReviews.size() : 0;
+            product.setRating(productRating);
+            product.setReviews(newReviews);
         }
     }
 
@@ -117,14 +119,13 @@ public class ProductDataStub implements CommandLineRunner {
         double normalPrice = 92699;
         double discountedPrice = 87699;
         String brand = "Samsung";
-        int rating = 0;
         String seller = "Buzz Smartphones";
         List<ProductImage> productImages = List.of(
                 new ProductImage("/buzz/imgs/products/s22-ultra.jpg"),
                 new ProductImage("/buzz/imgs/products/s22-ultra-2.jpg")
         );
         Product product = new Product();
-        restoreExistingReviews(product);
+        restoreExistingReviews(product, 2L);
 
         List<Keyword> keywords = Arrays.asList(
                 new Keyword("samsung"),
@@ -150,7 +151,6 @@ public class ProductDataStub implements CommandLineRunner {
         product.setNormalPrice(normalPrice);
         product.setDiscountedPrice(discountedPrice);
         product.setBrand(brand);
-        product.setRating(rating);
         product.setSeller(seller);
         product.setImages(productImages);
         product.setKeywords(keywords);
@@ -166,14 +166,13 @@ public class ProductDataStub implements CommandLineRunner {
         double normalPrice = 11099;
         double discountedPrice = 7699;
         String brand = "Realme";
-        int rating = 0;
         String seller = "LMN Smartphones India";
         List<ProductImage> productImages = List.of(
                 new ProductImage("/buzz/imgs/products/realme-narzo-7.jpg"),
                 new ProductImage("/buzz/imgs/products/realme-narzo-7-2.jpg")
         );
         Product product = new Product();
-        restoreExistingReviews(product);
+        restoreExistingReviews(product, 3L);
 
         List<Keyword> keywords = Arrays.asList(
                 new Keyword("realme"),
@@ -199,7 +198,6 @@ public class ProductDataStub implements CommandLineRunner {
         product.setNormalPrice(normalPrice);
         product.setDiscountedPrice(discountedPrice);
         product.setBrand(brand);
-        product.setRating(rating);
         product.setSeller(seller);
         product.setImages(productImages);
         product.setKeywords(keywords);
