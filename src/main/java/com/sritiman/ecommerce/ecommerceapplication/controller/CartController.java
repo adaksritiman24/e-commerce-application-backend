@@ -5,6 +5,7 @@ import com.sritiman.ecommerce.ecommerceapplication.model.AddDeliveryAddressReque
 import com.sritiman.ecommerce.ecommerceapplication.model.DeleteCartEntryRequest;
 import com.sritiman.ecommerce.ecommerceapplication.model.UpdateCartRequest;
 import com.sritiman.ecommerce.ecommerceapplication.service.CartService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,7 +46,7 @@ public class CartController {
 
     @PostMapping("/{username}")
     public ResponseEntity<Cart> updateCart(@PathVariable String username,
-                                        @RequestBody UpdateCartRequest updateCartRequest){
+                                        @RequestBody @Valid UpdateCartRequest updateCartRequest){
         try {
             return new ResponseEntity<>(cartService.updateCart(username, updateCartRequest), HttpStatus.OK);
         }catch (Exception e) {
@@ -55,7 +56,7 @@ public class CartController {
 
     @PostMapping("/{username}/remove")
     public ResponseEntity<Cart> deleteCartEntry(@PathVariable String username,
-                                                @RequestBody DeleteCartEntryRequest deleteCartEntryRequest) {
+                                                @RequestBody @Valid DeleteCartEntryRequest deleteCartEntryRequest) {
         try {
             return new ResponseEntity<>(cartService.removeCartEntry(username, deleteCartEntryRequest), HttpStatus.OK);
         }catch (Exception e) {
@@ -76,7 +77,7 @@ public class CartController {
 
     @PostMapping("/delivery_address/{username}")
     public ResponseEntity<String> addDeliveryAddress(@PathVariable String username,
-                                                     @RequestBody AddDeliveryAddressRequest addDeliveryAddressRequest){
+                                                     @RequestBody @Valid AddDeliveryAddressRequest addDeliveryAddressRequest){
          return new ResponseEntity<>(cartService.addDeliveryAddress(addDeliveryAddressRequest, username), HttpStatus.OK);
     }
 }

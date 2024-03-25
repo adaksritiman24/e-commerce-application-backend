@@ -10,11 +10,26 @@ import com.sritiman.ecommerce.ecommerceapplication.exceptions.payments.Unsupport
 import com.sritiman.ecommerce.ecommerceapplication.model.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 @ControllerAdvice
 public class CustomExceptionHandler {
+
+    @ExceptionHandler({MethodArgumentNotValidException.class})
+    public ResponseEntity<ErrorResponse> invalidRequestException(MethodArgumentNotValidException methodArgumentNotValidException) {
+        List<String> errors = methodArgumentNotValidException.getBindingResult().getFieldErrors().stream()
+                .map(FieldError::getDefaultMessage).toList();
+        return new ResponseEntity<>(
+                new ErrorResponse("Not Valid Request", errors.toString()), HttpStatus.BAD_REQUEST
+        );
+    }
 
     @ExceptionHandler(CustomerSignupDatabaseException.class)
     public ResponseEntity<ErrorResponse> databaseException(CustomerSignupDatabaseException customerSignupDatabaseException) {
