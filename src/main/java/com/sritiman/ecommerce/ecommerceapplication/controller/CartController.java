@@ -56,7 +56,7 @@ public class CartController {
 
     @PostMapping("/{username}/remove")
     public ResponseEntity<Cart> deleteCartEntry(@PathVariable String username,
-                                                @RequestBody @Valid DeleteCartEntryRequest deleteCartEntryRequest) {
+                                                @RequestBody DeleteCartEntryRequest deleteCartEntryRequest) {
         try {
             return new ResponseEntity<>(cartService.removeCartEntry(username, deleteCartEntryRequest), HttpStatus.OK);
         }catch (Exception e) {

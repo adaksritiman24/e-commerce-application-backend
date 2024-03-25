@@ -12,11 +12,8 @@ import lombok.Setter;
 @Setter
 public class UpdateCartRequest {
 
-    @NotEmpty(message = "Product Id cannot be empty or null")
     private Long productId;
 
-    @NotEmpty(message = "Quantity Cannot be empty or null")
-    @Min(value = 1, message = "Quantity should be at least 1")
     @Max(value = 100, message = "Quantity should be within 100")
     private int quantity;
 }

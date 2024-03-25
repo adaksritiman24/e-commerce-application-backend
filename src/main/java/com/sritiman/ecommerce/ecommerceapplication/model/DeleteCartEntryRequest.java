@@ -9,7 +9,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class DeleteCartEntryRequest {
-    @NotEmpty(message = "productId cannot null or empty")
     private Long productId;
     private String addedComments;
 }
