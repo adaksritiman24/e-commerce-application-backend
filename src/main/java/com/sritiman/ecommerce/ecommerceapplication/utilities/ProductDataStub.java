@@ -31,6 +31,8 @@ public class ProductDataStub implements CommandLineRunner {
         Product product = getMoto();
         Product product1 = getSamsung();
         Product product2 = getRealme();
+        Product product3 = getSamsungM13();
+        Product product4 = getPocoX5();
 
         //first stub
         try {
@@ -42,7 +44,7 @@ public class ProductDataStub implements CommandLineRunner {
 
         //second stub
         try {
-            product1.setAssociatedProducts(List.of(new AssociatedProduct(1L)));
+            product1.setAssociatedProducts(List.of(new AssociatedProduct(1L), new AssociatedProduct(5L), new AssociatedProduct(4L)));
             productRepository.save(product1);
         } catch (Exception e) {
             System.out.println("[FAIL]: " + e.getMessage());
@@ -52,6 +54,21 @@ public class ProductDataStub implements CommandLineRunner {
         try {
             product2.setAssociatedProducts(List.of(new AssociatedProduct(1L), new AssociatedProduct(2L)));
             productRepository.save(product2);
+        } catch (Exception e) {
+            System.out.println("[FAIL]: " + e.getMessage());
+        }
+        //fourth stub
+        try {
+            product3.setAssociatedProducts(List.of(new AssociatedProduct(1L), new AssociatedProduct(2L), new AssociatedProduct(5L), new AssociatedProduct(3L)));
+            productRepository.save(product3);
+        } catch (Exception e) {
+            System.out.println("[FAIL]: " + e.getMessage());
+        }
+
+        //fifth stub
+        try {
+            product4.setAssociatedProducts(List.of(new AssociatedProduct(1L), new AssociatedProduct(2L), new AssociatedProduct(4L)));
+            productRepository.save(product4);
         } catch (Exception e) {
             System.out.println("[FAIL]: " + e.getMessage());
         }
@@ -194,6 +211,104 @@ public class ProductDataStub implements CommandLineRunner {
                 new ProductDetail("16.72 centimeters (6.6-inch) FHD+ LCD - infinity O Display, FHD+ resolution with 1080 x 2408 pixels resolution, 401 PPI with 16M color")
         );
         product.setId(3L);
+        product.setName(name);
+        product.setNormalPrice(normalPrice);
+        product.setDiscountedPrice(discountedPrice);
+        product.setBrand(brand);
+        product.setSeller(seller);
+        product.setImages(productImages);
+        product.setKeywords(keywords);
+        product.setCategory(
+                categoryRepository.findByName("smartphones")
+        );
+        product.setProductDetails(productDetails);
+        return product;
+    }
+
+    private Product getSamsungM13() {
+        String name = "Samsung Galaxy M13";
+        double normalPrice = 23099;
+        double discountedPrice = 13299;
+        String brand = "Samsung";
+        String seller = "LMN Smartphones India";
+        List<ProductImage> productImages = List.of(
+                new ProductImage("/buzz/imgs/products/m13-galaxy.jpg"),
+                new ProductImage("/buzz/imgs/products/m13-galaxy-2.jpg")
+        );
+        Product product = new Product();
+        restoreExistingReviews(product, 4L);
+
+        List<Keyword> keywords = Arrays.asList(
+                new Keyword("samsung"),
+                new Keyword("samsung galaxy"),
+                new Keyword("galaxy"),
+                new Keyword("m13"),
+                new Keyword("m 13"),
+                new Keyword("13"),
+                new Keyword("mobile"),
+                new Keyword("mobiles"),
+                new Keyword("smartphone"),
+                new Keyword("smartphones"),
+                new Keyword("phone"),
+                new Keyword("phones")
+        );
+        List<ProductDetail> productDetails = Arrays.asList(
+                new ProductDetail("6500mAh lithium-ion battery, 1 year manufacturer warranty for device and 6 months manufacturer warranty for in-box accessories including batteries from the date of purchase"),
+                new ProductDetail("Upto 4GB RAM with RAM Plus | 64GB internal memory expandable up to 1TB| Dual Sim (Nano)"),
+                new ProductDetail("50MP+5MP+2MP Triple camera setup- True 50MP (F1.8) main camera +5MP(F2.2)+ 2MP (F2.4) | 8MP (F2.2) front cam"),
+                new ProductDetail("Android 12,One UI Core 4 with a powerful Octa Core Processor"),
+                new ProductDetail("16.72 centimeters (6.6-inch) FHD+ LCD - infinity O Display, FHD+ resolution with 1080 x 2408 pixels resolution, 401 PPI with 16M color")
+        );
+        product.setId(4L);
+        product.setName(name);
+        product.setNormalPrice(normalPrice);
+        product.setDiscountedPrice(discountedPrice);
+        product.setBrand(brand);
+        product.setSeller(seller);
+        product.setImages(productImages);
+        product.setKeywords(keywords);
+        product.setCategory(
+                categoryRepository.findByName("smartphones")
+        );
+        product.setProductDetails(productDetails);
+        return product;
+    }
+
+    private Product getPocoX5() {
+        String name = "Poco X5";
+        double normalPrice = 17099;
+        double discountedPrice = 11199;
+        String brand = "Poco";
+        String seller = "POCO India LTD.";
+        List<ProductImage> productImages = List.of(
+                new ProductImage("/buzz/imgs/products/poco-x5.jpg")
+        );
+        Product product = new Product();
+        restoreExistingReviews(product, 5L);
+
+        List<Keyword> keywords = Arrays.asList(
+                new Keyword("poco"),
+                new Keyword("samsung"),
+                new Keyword("galaxy"),
+                new Keyword("poco x5"),
+                new Keyword("x5"),
+                new Keyword("poco phones"),
+                new Keyword("poco mobiles"),
+                new Keyword("mobile"),
+                new Keyword("mobiles"),
+                new Keyword("smartphone"),
+                new Keyword("smartphones"),
+                new Keyword("phone"),
+                new Keyword("phones")
+        );
+        List<ProductDetail> productDetails = Arrays.asList(
+                new ProductDetail("6500mAh lithium-ion battery, 1 year manufacturer warranty for device and 6 months manufacturer warranty for in-box accessories including batteries from the date of purchase"),
+                new ProductDetail("Upto 4GB RAM with RAM Plus | 64GB internal memory expandable up to 1TB| Dual Sim (Nano)"),
+                new ProductDetail("50MP+5MP+2MP Triple camera setup- True 50MP (F1.8) main camera +5MP(F2.2)+ 2MP (F2.4) | 8MP (F2.2) front cam"),
+                new ProductDetail("Android 12,One UI Core 4 with a powerful Octa Core Processor"),
+                new ProductDetail("16.72 centimeters (6.6-inch) FHD+ LCD - infinity O Display, FHD+ resolution with 1080 x 2408 pixels resolution, 401 PPI with 16M color")
+        );
+        product.setId(5L);
         product.setName(name);
         product.setNormalPrice(normalPrice);
         product.setDiscountedPrice(discountedPrice);
