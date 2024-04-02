@@ -25,4 +25,5 @@ public class SearchedProduct {
     Category category;
     String brand;
     int rating;
+    String seller;
 }
