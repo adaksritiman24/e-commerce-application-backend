@@ -6,7 +6,11 @@ import com.sritiman.ecommerce.ecommerceapplication.entity.Review;
 import com.sritiman.ecommerce.ecommerceapplication.model.RateRequestDTO;
 import com.sritiman.ecommerce.ecommerceapplication.repository.CustomerRepository;
 import com.sritiman.ecommerce.ecommerceapplication.repository.ProductRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +18,8 @@ import java.util.*;
 
 @Service
 public class RatingService {
+
+    Logger LOG = LoggerFactory.getLogger(RatingService.class);
 
     CustomerRepository customerRepository;
     ProductRepository productRepository;
@@ -25,7 +31,9 @@ public class RatingService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = "productReviews", key = "#productId")
     public boolean giveRating(Long productId, RateRequestDTO rateRequestDTO) {
+        LOG.info("Updating review for ProductId: {}", productId);
         String customerUsername = rateRequestDTO.getUsername();
         Customer customer = customerRepository.findByUsername(customerUsername);
         if (Objects.nonNull(customer) && Objects.nonNull(customer.getEmail())) { //check for registered customers
@@ -54,7 +62,9 @@ public class RatingService {
         return false;
     }
 
+    @Cacheable(cacheNames = "productReviews", key = "#productId")
     public List<Review> getReviews(Long productId) {
+        LOG.info("Fetching reviews for ProductId: {}", productId);
         Optional<Product> productOptional = productRepository.findById(productId);
         if (productOptional.isPresent()) {
             return productOptional.get().getReviews();

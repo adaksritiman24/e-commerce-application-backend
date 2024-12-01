@@ -25,6 +25,7 @@ dependencies {
 	implementation 'org.springframework.security:spring-security-oauth2-resource-server'
 	implementation 'org.springframework.security:spring-security-oauth2-jose'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-cache'
 	implementation 'org.modelmapper:modelmapper:3.1.0'
 //	implementation 'com.h2database:h2'
 	compileOnly 'org.projectlombok:lombok'

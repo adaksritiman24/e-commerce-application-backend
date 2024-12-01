@@ -8,7 +8,11 @@ import com.sritiman.ecommerce.ecommerceapplication.repository.CustomerRepository
 import com.sritiman.ecommerce.ecommerceapplication.repository.OrderRepository;
 import com.sritiman.ecommerce.ecommerceapplication.repository.ProductRepository;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +20,8 @@ import java.util.*;
 
 @Service
 public class OrderService {
+    Logger LOG = LoggerFactory.getLogger(OrderService.class);
+
     OrderRepository orderRepository;
     CartRepository cartRepository;
     CustomerRepository customerRepository;
@@ -51,7 +57,9 @@ public class OrderService {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = "allOrdersForUser", key = "#customer.username")
     public Order placeOrder(Customer customer, PaymentDetails paymentDetails){
+        LOG.info("Pacing order for user: {} with cartId: {}", customer.getUsername(), customer.getCart().getId());
         Cart customerCart = customer.getCart();
         Order order = cloneCartToOrder(customerCart, paymentDetails);
         order.setCustomer(customer);
@@ -105,7 +113,9 @@ public class OrderService {
         return address;
     }
 
+    @Cacheable(cacheNames = "allOrdersForUser", key = "#username")
     public List<Order> getAllOrders(String username) {
+        LOG.info("Fetching all orders for username: {}", username);
         Customer customer = customerRepository.findByUsername(username);
         if(Objects.nonNull(customer)) {
             return orderRepository.findByCustomerUsername(customer.getId());
