@@ -3,11 +3,9 @@ package com.sritiman.ecommerce.ecommerceapplication.service;
 import com.sritiman.ecommerce.ecommerceapplication.entity.Cart;
 import com.sritiman.ecommerce.ecommerceapplication.entity.Customer;
 import com.sritiman.ecommerce.ecommerceapplication.exceptions.CustomerSignupDatabaseException;
+import com.sritiman.ecommerce.ecommerceapplication.exceptions.EmailAlreadyExistsException;
 import com.sritiman.ecommerce.ecommerceapplication.exceptions.LoginException;
-import com.sritiman.ecommerce.ecommerceapplication.model.LoginResponse;
-import com.sritiman.ecommerce.ecommerceapplication.model.SignupRequest;
-import com.sritiman.ecommerce.ecommerceapplication.model.SignupResponse;
-import com.sritiman.ecommerce.ecommerceapplication.model.UpdateCartRequest;
+import com.sritiman.ecommerce.ecommerceapplication.model.*;
 import com.sritiman.ecommerce.ecommerceapplication.repository.CustomerRepository;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -17,6 +15,7 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Objects;
@@ -72,6 +71,71 @@ public class CustomerService {
         }
         catch (Exception e) {
             throw new CustomerSignupDatabaseException("Something Went Wrong!");
+        }
+    }
+
+    public LoginResponse loginWithOauthUser(String username, OauthUserDetails userDetails, String anonymousCartUsername) {
+        Customer customer = customerRepository.findByUsername(username);
+        String defaultOauthPassword = "oauth-default-password";
+        if(customer != null) {
+            boolean matchFound = BCrypt.checkpw(defaultOauthPassword, customer.getPassword());
+            if(matchFound) {
+                //merge with existing cart
+                Customer anonymousUser = customerRepository.findByUsername(anonymousCartUsername);
+                if(Objects.nonNull(anonymousUser)) {
+                    Cart anonymousUserCart = anonymousUser.getCart();
+                    try {
+                        cartService.mergeCart(username, anonymousUserCart.getCartEntryList()
+                                .stream()
+                                .map(cartEntry -> new UpdateCartRequest(cartEntry.getProductId(), cartEntry.getQuantity()))
+                                .collect(Collectors.toList()));
+                        //Remove anonymous user once cartMerge is done
+                        customerRepository.delete(anonymousUser);
+                    }
+                    catch (Exception e) {
+                        LOG.error(e.getMessage());
+                    }
+                }
+                return new LoginResponse(customer,generateNewAuthToken(customer.getUsername(), customer.getPassword()));
+            }
+            else{
+                throw new LoginException("Invalid-password invalid");
+            }
+        }
+        else {
+            //throw exception if email already exists
+            Customer customerByEmail = customerRepository.findByEmail(username);
+            if(Objects.nonNull(customerByEmail)) {
+                throw new EmailAlreadyExistsException("Email Id already exists!");
+            }
+            //create the customer
+            Customer newOauthCustomer = new Customer();
+            newOauthCustomer.setUsername(username);
+            newOauthCustomer.setEmail(username);
+            newOauthCustomer.setName(userDetails.getFirstName()+" "+userDetails.getLastName());
+            newOauthCustomer.setPassword(hashPw(defaultOauthPassword));
+            newOauthCustomer.setCart(new Cart());
+
+            Customer newCustomer = customerRepository.save(newOauthCustomer);
+
+            //merge with existing cart
+            Customer anonymousUser = customerRepository.findByUsername(anonymousCartUsername);
+            if(Objects.nonNull(anonymousUser)) {
+                Cart anonymousUserCart = anonymousUser.getCart();
+                try {
+                    cartService.mergeCart(newCustomer.getUsername(), anonymousUserCart.getCartEntryList()
+                            .stream()
+                            .map(cartEntry -> new UpdateCartRequest(cartEntry.getProductId(), cartEntry.getQuantity()))
+                            .collect(Collectors.toList()));
+                    //Remove anonymous user once cartMerge is done
+                    customerRepository.delete(anonymousUser);
+                }
+                catch (Exception e) {
+                    LOG.error(e.getMessage());
+                }
+            }
+            String token = generateNewAuthToken(newCustomer.getUsername(),newCustomer.getPassword());
+            return new LoginResponse(newCustomer, token);
         }
     }
 

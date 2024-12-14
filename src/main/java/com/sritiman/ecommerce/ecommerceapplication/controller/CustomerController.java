@@ -33,8 +33,14 @@ public class CustomerController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest loginRequest) {
-        LoginResponse loginResponse = customerService.login(loginRequest.getUsername(), loginRequest.getPassword(), loginRequest.getAnonymousCartUsername());
-        return new ResponseEntity<>(loginResponse, HttpStatus.OK);
+        if(Boolean.TRUE.equals(loginRequest.getOauthLogin())) {
+            LoginResponse oauthLoginResponse = customerService.loginWithOauthUser(loginRequest.getUsername(), loginRequest.getUserDetails(), loginRequest.getAnonymousCartUsername());
+            return new ResponseEntity<>(oauthLoginResponse, HttpStatus.OK);
+        }
+        else {
+            LoginResponse loginResponse = customerService.login(loginRequest.getUsername(), loginRequest.getPassword(), loginRequest.getAnonymousCartUsername());
+            return new ResponseEntity<>(loginResponse, HttpStatus.OK);
+        }
     }
 
     @PostMapping("/me")

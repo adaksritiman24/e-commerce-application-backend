@@ -19,4 +19,6 @@ public class LoginRequest {
 
 
     private String anonymousCartUsername;
+    private Boolean oauthLogin;
+    private OauthUserDetails userDetails;
 }

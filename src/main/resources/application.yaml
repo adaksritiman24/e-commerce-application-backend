@@ -1,0 +1,21 @@
+server:
+  port: 8080
+spring:
+  datasource:
+    url: ${MYSQL_DATASOURCE_URL:jdbc:mysql://localhost:3306/ecommerce}
+    username: sritiman
+    password: root
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+    show-sql: false
+    hibernate:
+      ddl-auto: update
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${KEYCLOAK_SERVER_JWK_URL:http://localhost:7080/realms/master/protocol/openid-connect/certs}
+
