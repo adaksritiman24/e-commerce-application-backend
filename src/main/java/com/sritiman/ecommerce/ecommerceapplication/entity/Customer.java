@@ -1,13 +1,12 @@
 package com.sritiman.ecommerce.ecommerceapplication.entity;
 
 
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.validation.annotation.Validated;
 
-import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,6 +36,8 @@ public class Customer {
     private String phoneNumber;
 
     private String password;
+
+    private String profilePicture;
 
     @OneToOne(targetEntity = Cart.class, cascade = {CascadeType.ALL})
     private Cart cart;

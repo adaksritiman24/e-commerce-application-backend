@@ -12,4 +12,5 @@ import lombok.Setter;
 public class OauthUserDetails {
     private String lastName;
     private String firstName;
+    private String profilePicture;
 }

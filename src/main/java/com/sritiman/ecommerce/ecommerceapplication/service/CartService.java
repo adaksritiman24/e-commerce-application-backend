@@ -200,6 +200,7 @@ public class CartService {
             address.setPhone(deliveryAddressRequest.getPhone());
 
             customer.getCart().setDeliveryAddress(address);
+            customer.setAddress(address);
             customerRepository.save(customer);
             return "success";
         }

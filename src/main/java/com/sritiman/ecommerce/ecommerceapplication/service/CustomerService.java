@@ -81,6 +81,9 @@ public class CustomerService {
             boolean matchFound = BCrypt.checkpw(defaultOauthPassword, customer.getPassword());
             if(matchFound) {
                 //merge with existing cart
+                if(Objects.nonNull(userDetails.getProfilePicture())) {
+                    customer.setProfilePicture(userDetails.getProfilePicture());
+                }
                 Customer anonymousUser = customerRepository.findByUsername(anonymousCartUsername);
                 if(Objects.nonNull(anonymousUser)) {
                     Cart anonymousUserCart = anonymousUser.getCart();
@@ -99,7 +102,7 @@ public class CustomerService {
                 return new LoginResponse(customer,generateNewAuthToken(customer.getUsername(), customer.getPassword()));
             }
             else{
-                throw new LoginException("Invalid-password invalid");
+                throw new LoginException("An user with username "+ username+" already exists!");
             }
         }
         else {
@@ -115,6 +118,11 @@ public class CustomerService {
             newOauthCustomer.setName(userDetails.getFirstName()+" "+userDetails.getLastName());
             newOauthCustomer.setPassword(hashPw(defaultOauthPassword));
             newOauthCustomer.setCart(new Cart());
+
+            //set customer profile picture
+            if(Objects.nonNull(userDetails.getProfilePicture())) {
+                newOauthCustomer.setProfilePicture(userDetails.getProfilePicture());
+            }
 
             Customer newCustomer = customerRepository.save(newOauthCustomer);
 
