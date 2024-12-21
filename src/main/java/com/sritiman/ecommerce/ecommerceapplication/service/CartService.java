@@ -201,6 +201,9 @@ public class CartService {
 
             customer.getCart().setDeliveryAddress(address);
             customer.setAddress(address);
+            if(Objects.nonNull(deliveryAddressRequest.getPhone())) {
+                customer.setPhoneNumber(deliveryAddressRequest.getPhone());
+            }
             customerRepository.save(customer);
             return "success";
         }
