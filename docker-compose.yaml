@@ -51,6 +51,14 @@ services:
     networks:
       - ecommnet
 
+  ecommerce-image-server:
+    container_name: ecommerce-image-server
+    image: sritiman24/ecommerce-application-image-server:v1
+    ports:
+      - "3003:3003"
+    networks:
+      - ecommnet
+
 volumes:
   my-db:
 networks:
