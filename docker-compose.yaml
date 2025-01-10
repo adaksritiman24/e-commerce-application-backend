@@ -11,6 +11,7 @@ services:
       - "8080:8080"
     environment:
       - MYSQL_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/ecommerce
+      - PAYMENT_SERVICE_URL=http://ecommerce-backend-payments-api:8081
       - KEYCLOAK_SERVER_JWK_URL=http://oauth-server:8080/realms/master/protocol/openid-connect/certs
     volumes:
       - ~/.gradle:/root/.gradle
@@ -63,3 +64,4 @@ volumes:
   my-db:
 networks:
   ecommnet:
+    external: true

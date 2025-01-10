@@ -1,5 +1,6 @@
 package com.sritiman.ecommerce.ecommerceapplication.service;
 
+import com.sritiman.ecommerce.ecommerceapplication.client.PaymentsClient;
 import com.sritiman.ecommerce.ecommerceapplication.entity.Customer;
 import com.sritiman.ecommerce.ecommerceapplication.entity.Order;
 import com.sritiman.ecommerce.ecommerceapplication.entity.PaymentDetails;
@@ -11,24 +12,29 @@ import com.sritiman.ecommerce.ecommerceapplication.model.payments.PaymentAuthori
 import com.sritiman.ecommerce.ecommerceapplication.model.payments.PaymentModeDTO;
 import com.sritiman.ecommerce.ecommerceapplication.model.payments.PaymentResponseDTO;
 import com.sritiman.ecommerce.ecommerceapplication.repository.CustomerRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
 
 @Service
 public class PaymentService {
+    Logger LOG = LoggerFactory.getLogger(PaymentService.class);
+
     public static final String ORDER_SUCCESS = "SUCCESS";
     private final CustomerRepository customerRepository;
     private final BankPaymentGateway bankPaymentGateway;
     private final OrderService orderService;
+    private final PaymentsClient paymentsClient;
 
     @Autowired
-    public PaymentService(CustomerRepository customerRepository, BankPaymentGateway bankPaymentGateway, OrderService orderService) {
+    public PaymentService(CustomerRepository customerRepository, BankPaymentGateway bankPaymentGateway, OrderService orderService, PaymentsClient paymentsClient) {
         this.customerRepository = customerRepository;
         this.bankPaymentGateway = bankPaymentGateway;
         this.orderService = orderService;
+        this.paymentsClient = paymentsClient;
     }
 
     public PaymentResponseDTO capturePayment(PaymentAuthorizationRequest paymentAuthorizationRequest) {
@@ -36,15 +42,13 @@ public class PaymentService {
         Customer customer = customerRepository.findByUsername(customerId);
 
         if(Objects.nonNull(customer)) {
-            if(PaymentModeDTO.BANK_CARD.equals(paymentAuthorizationRequest.getPaymentMode())) {
-                String captureStatus = bankPaymentGateway.capture(paymentAuthorizationRequest);
+            PaymentResponseDTO paymentResponseDTO = paymentsClient.authorizeCapture(paymentAuthorizationRequest);
+            LOG.info("Got Payment response: {}", paymentResponseDTO);
 
-                if(captureStatus.equalsIgnoreCase(ORDER_SUCCESS)) {
-                    return refreshCustomerCartAndSendOrderAcknowledgement(customer, paymentAuthorizationRequest);
-                }
-            }else {
-                throw new UnsupportedPaymentModeException("PaymentMode not Supported");
+            if(ORDER_SUCCESS.equals(paymentResponseDTO.getStatus())) {
+                return refreshCustomerCartAndSendOrderAcknowledgement(customer, paymentAuthorizationRequest);
             }
+            throw new UnsupportedPaymentModeException("Something went wrong in payments API");
         }
         throw new CustomerNotFoundException("Customer not Found");
     }

@@ -19,3 +19,8 @@ spring:
         jwt:
           jwk-set-uri: ${KEYCLOAK_SERVER_JWK_URL:http://localhost:7080/realms/master/protocol/openid-connect/certs}
 
+feign:
+  client:
+    config:
+      payment-service:
+        url: ${PAYMENT_SERVICE_URL:http://localhost:8081}
