@@ -3,6 +3,7 @@ package com.sritiman.ecommerce.ecommerceapplication.exception_handler;
 import com.sritiman.ecommerce.ecommerceapplication.exceptions.*;
 import com.sritiman.ecommerce.ecommerceapplication.exceptions.payments.AccountNotFoundException;
 import com.sritiman.ecommerce.ecommerceapplication.exceptions.payments.InsufficientBalanceException;
+import com.sritiman.ecommerce.ecommerceapplication.exceptions.payments.PaymentsServiceException;
 import com.sritiman.ecommerce.ecommerceapplication.exceptions.payments.UnsupportedPaymentModeException;
 import com.sritiman.ecommerce.ecommerceapplication.model.ErrorResponse;
 import org.springframework.http.HttpStatus;
@@ -12,9 +13,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @ControllerAdvice
 public class CustomExceptionHandler {
@@ -66,6 +65,11 @@ public class CustomExceptionHandler {
     @ExceptionHandler(EmailAlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> emailAlreadyExists(EmailAlreadyExistsException emailAlreadyExistsException) {
         return new ResponseEntity<>(new ErrorResponse(emailAlreadyExistsException.getMessage(), null), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(PaymentsServiceException.class)
+    public ResponseEntity<ErrorResponse> paymentsServiceException(PaymentsServiceException paymentsServiceException) {
+        return new ResponseEntity<>(new ErrorResponse(paymentsServiceException.getMessage(), null), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 }

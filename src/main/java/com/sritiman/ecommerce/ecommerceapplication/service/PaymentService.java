@@ -7,9 +7,7 @@ import com.sritiman.ecommerce.ecommerceapplication.entity.PaymentDetails;
 import com.sritiman.ecommerce.ecommerceapplication.entity.PaymentMode;
 import com.sritiman.ecommerce.ecommerceapplication.exceptions.CustomerNotFoundException;
 import com.sritiman.ecommerce.ecommerceapplication.exceptions.payments.UnsupportedPaymentModeException;
-import com.sritiman.ecommerce.ecommerceapplication.gateway.BankPaymentGateway;
 import com.sritiman.ecommerce.ecommerceapplication.model.payments.PaymentAuthorizationRequest;
-import com.sritiman.ecommerce.ecommerceapplication.model.payments.PaymentModeDTO;
 import com.sritiman.ecommerce.ecommerceapplication.model.payments.PaymentResponseDTO;
 import com.sritiman.ecommerce.ecommerceapplication.repository.CustomerRepository;
 import org.slf4j.Logger;
@@ -25,14 +23,12 @@ public class PaymentService {
 
     public static final String ORDER_SUCCESS = "SUCCESS";
     private final CustomerRepository customerRepository;
-    private final BankPaymentGateway bankPaymentGateway;
     private final OrderService orderService;
     private final PaymentsClient paymentsClient;
 
     @Autowired
-    public PaymentService(CustomerRepository customerRepository, BankPaymentGateway bankPaymentGateway, OrderService orderService, PaymentsClient paymentsClient) {
+    public PaymentService(CustomerRepository customerRepository, OrderService orderService, PaymentsClient paymentsClient) {
         this.customerRepository = customerRepository;
-        this.bankPaymentGateway = bankPaymentGateway;
         this.orderService = orderService;
         this.paymentsClient = paymentsClient;
     }

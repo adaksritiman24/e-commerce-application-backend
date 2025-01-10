@@ -28,7 +28,7 @@ public class PaymentController {
     @PostMapping("/v1/capture")
     public ResponseEntity<PaymentResponseDTO> authorize(@RequestBody PaymentAuthorizationRequest paymentAuthorizationRequest) throws JsonProcessingException {
         PaymentResponseDTO paymentResponseDTO = paymentService.capturePayment(paymentAuthorizationRequest);
-        System.out.println("Payment: "+paymentResponseDTO);
+        LOGGER.info("Payment Request: {} ", paymentResponseDTO);
         return new ResponseEntity<>(paymentResponseDTO, HttpStatus.OK);
     }
 }
