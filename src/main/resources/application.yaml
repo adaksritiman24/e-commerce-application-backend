@@ -24,3 +24,16 @@ feign:
     config:
       payment-service:
         url: ${PAYMENT_SERVICE_URL:http://localhost:8081}
+
+messaging:
+  connection-information:
+    host: ${RABBITMQ_HOST:localhost}
+    port: 5672
+    username: "guest"
+    password: "guest"
+  exchange-information:
+    order-create-exchange:
+      name: "Buzz.Order.Create.Exchange"
+      type: "fanout"
+      queues:
+        - name: "Buzz.Order.Create.Queue"

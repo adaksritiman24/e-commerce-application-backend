@@ -13,6 +13,7 @@ services:
       - MYSQL_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/ecommerce
       - PAYMENT_SERVICE_URL=http://ecommerce-backend-payments-api:8081
       - KEYCLOAK_SERVER_JWK_URL=http://oauth-server:8080/realms/master/protocol/openid-connect/certs
+      - RABBITMQ_HOST=rabbit_ecomm
     volumes:
       - ~/.gradle:/root/.gradle
     networks:
@@ -20,6 +21,7 @@ services:
     depends_on:
       - db
       - oauth-server
+      - rabbit
 
   db:
     image: mysql:8.0
@@ -52,6 +54,17 @@ services:
     networks:
       - ecommnet
 
+  rabbit:
+    container_name: rabbit_ecomm
+    image: rabbitmq:management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - ecommnet
+
   ecommerce-image-server:
     container_name: ecommerce-image-server
     image: sritiman24/ecommerce-application-image-server:v1
@@ -62,6 +75,8 @@ services:
 
 volumes:
   my-db:
+  rabbitmq_data:
+
 networks:
   ecommnet:
     external: true
