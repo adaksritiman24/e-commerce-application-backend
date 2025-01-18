@@ -54,6 +54,7 @@ public class PaymentService {
         paymentDetails.setPaymentMode(PaymentMode.BANK_CARD);
         paymentDetails.setTotalAmount(paymentAuthorizationRequest.getCost().getTotalCost());
         Order order = orderService.placeOrder(customer, paymentDetails);
+        orderService.sendOrderJSON(order);
         return preparePaymentResponseDTO(order.getId());
     }
 

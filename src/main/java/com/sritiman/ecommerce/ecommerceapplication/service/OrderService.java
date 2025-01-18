@@ -2,11 +2,13 @@ package com.sritiman.ecommerce.ecommerceapplication.service;
 
 import com.sritiman.ecommerce.ecommerceapplication.entity.*;
 import com.sritiman.ecommerce.ecommerceapplication.exceptions.OrderNotFoundException;
+import com.sritiman.ecommerce.ecommerceapplication.messaging.sender.CreateOrderJsonSender;
 import com.sritiman.ecommerce.ecommerceapplication.model.OrderDTO;
 import com.sritiman.ecommerce.ecommerceapplication.repository.CartRepository;
 import com.sritiman.ecommerce.ecommerceapplication.repository.CustomerRepository;
 import com.sritiman.ecommerce.ecommerceapplication.repository.OrderRepository;
 import com.sritiman.ecommerce.ecommerceapplication.repository.ProductRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 
 @Service
+@Slf4j
 public class OrderService {
     Logger LOG = LoggerFactory.getLogger(OrderService.class);
 
@@ -26,13 +29,15 @@ public class OrderService {
     CartRepository cartRepository;
     CustomerRepository customerRepository;
     ProductRepository productRepository;
+    CreateOrderJsonSender createOrderJsonSender;
 
     @Autowired
-    public OrderService(OrderRepository orderRepository, CartRepository cartRepository, CustomerRepository customerRepository, ProductRepository productRepository) {
+    public OrderService(OrderRepository orderRepository, CartRepository cartRepository, CustomerRepository customerRepository, ProductRepository productRepository, CreateOrderJsonSender createOrderJsonSender) {
         this.orderRepository = orderRepository;
         this.cartRepository = cartRepository;
         this.customerRepository = customerRepository;
         this.productRepository = productRepository;
+        this.createOrderJsonSender = createOrderJsonSender;
     }
 
     public OrderDTO getOrder(Long orderId) {
@@ -121,5 +126,14 @@ public class OrderService {
             return orderRepository.findByCustomerUsername(customer.getId());
         }
         return Collections.emptyList();
+    }
+
+    public void sendOrderJSON(Order order) {
+        try {
+            createOrderJsonSender.sendMessage(order);
+        }
+        catch (Exception ex) {
+            log.error("Failed to send order JSON with error: ", ex);
+        }
     }
 }
