@@ -25,6 +25,15 @@ feign:
       payment-service:
         url: ${PAYMENT_SERVICE_URL:http://localhost:8081}
 
+resilience4j.retry:
+  configs:
+    default:
+      maxAttempts: 3
+      waitDuration: 5s
+      retryExceptions:
+        - com.sritiman.ecommerce.ecommerceapplication.exceptions.payments.AccountNotFoundException
+
+
 messaging:
   connection-information:
     host: ${RABBITMQ_HOST:localhost}
