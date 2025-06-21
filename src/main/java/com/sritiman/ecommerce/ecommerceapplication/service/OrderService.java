@@ -4,6 +4,8 @@ import com.sritiman.ecommerce.ecommerceapplication.entity.*;
 import com.sritiman.ecommerce.ecommerceapplication.exceptions.OrderNotFoundException;
 import com.sritiman.ecommerce.ecommerceapplication.messaging.sender.CreateOrderJsonSender;
 import com.sritiman.ecommerce.ecommerceapplication.model.OrderDTO;
+import com.sritiman.ecommerce.ecommerceapplication.model.response.OrderHistoryItemDTO;
+import com.sritiman.ecommerce.ecommerceapplication.model.response.OrderHistoryResponseDTO;
 import com.sritiman.ecommerce.ecommerceapplication.repository.CartRepository;
 import com.sritiman.ecommerce.ecommerceapplication.repository.CustomerRepository;
 import com.sritiman.ecommerce.ecommerceapplication.repository.OrderRepository;
@@ -13,8 +15,8 @@ import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,7 +64,6 @@ public class OrderService {
     }
 
     @Transactional
-    @CacheEvict(cacheNames = "allOrdersForUser", key = "#customer.username")
     public Order placeOrder(Customer customer, PaymentDetails paymentDetails){
         LOG.info("Pacing order for user: {} with cartId: {}", customer.getUsername(), customer.getCart().getId());
         Cart customerCart = customer.getCart();
@@ -118,14 +119,32 @@ public class OrderService {
         return address;
     }
 
-    @Cacheable(cacheNames = "allOrdersForUser", key = "#username")
-    public List<Order> getAllOrders(String username) {
+    public OrderHistoryResponseDTO getAllOrders(String username, int pageNumber) {
         LOG.info("Fetching all orders for username: {}", username);
         Customer customer = customerRepository.findByUsername(username);
         if(Objects.nonNull(customer)) {
-            return orderRepository.findByCustomerUsername(customer.getId());
+            PageRequest pageRequest = PageRequest.of(pageNumber, 3);
+            Page<Order> orderPageData = orderRepository.findByCustomerUsername(customer.getId(), pageRequest);
+            int totalPages = orderPageData.getTotalPages();
+            return getOrderHistoryResponse(orderPageData.getContent(), totalPages, pageNumber);
         }
-        return Collections.emptyList();
+        return OrderHistoryResponseDTO.builder().totalPages(0).requestedPageNumber(0).orders(Collections.emptyList()).build();
+    }
+
+    private OrderHistoryResponseDTO getOrderHistoryResponse(List<Order> orders, int totalPages, int requestedPage) {
+        List<OrderHistoryItemDTO> orderHistoryItemDTOS = orders.stream()
+                .map(order -> OrderHistoryItemDTO.builder()
+                        .orderDate(order.getOrderDate())
+                        .id(order.getId())
+                        .status(order.getStatus())
+                        .totalPrice(order.getTotalPrice())
+                        .build())
+                .toList();
+        return OrderHistoryResponseDTO.builder()
+                .totalPages(totalPages)
+                .requestedPageNumber(requestedPage)
+                .orders(orderHistoryItemDTOS)
+                .build();
     }
 
     public void sendOrderJSON(Order order) {

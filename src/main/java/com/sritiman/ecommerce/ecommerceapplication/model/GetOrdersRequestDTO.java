@@ -11,4 +11,5 @@ import lombok.Setter;
 @NoArgsConstructor
 public class GetOrdersRequestDTO {
     private String username;
+    private int pageNumber;
 }
