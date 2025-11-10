@@ -33,6 +33,10 @@ resilience4j.retry:
       retryExceptions:
         - com.sritiman.ecommerce.ecommerceapplication.exceptions.payments.AccountNotFoundException
 
+application:
+  auth:
+    bypassed-urls:
+      - "/order/**"
 
 messaging:
   connection-information:
