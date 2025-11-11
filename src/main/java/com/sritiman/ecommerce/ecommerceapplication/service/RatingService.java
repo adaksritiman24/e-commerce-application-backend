@@ -35,31 +35,43 @@ public class RatingService {
     public boolean giveRating(Long productId, RateRequestDTO rateRequestDTO) {
         LOG.info("Updating review for ProductId: {}", productId);
         String customerUsername = rateRequestDTO.getUsername();
+
         Customer customer = customerRepository.findByUsername(customerUsername);
-        if (Objects.nonNull(customer) && Objects.nonNull(customer.getEmail())) { //check for registered customers
-            Review review = new Review();
-            review.setRating(rateRequestDTO.getRating());
-            review.setCustomer(customer);
-            review.setText(rateRequestDTO.getText());
+        Product product = productRepository.findById(productId).orElse(null);
 
-            Optional<Product> productOpt = productRepository.findById(productId);
-            if (productOpt.isPresent()) {
-                Product product = productOpt.get();
-                //remove existing user review before adding new review
-                List<Review> existingReviews = product.getReviews().stream().filter(review1 -> !review1.getCustomer().getUsername().equalsIgnoreCase(customerUsername)).toList();
-                ArrayList<Review> newReviews = new ArrayList<>(existingReviews);
-                newReviews.add(review);
-
-                product.setReviews(newReviews);
-                //update product rating
-                Integer productRating = newReviews.size() > 0 ? newReviews.stream().map(Review::getRating).reduce(0, Integer::sum) / newReviews.size() : 0;
-                product.setRating(productRating);
-                productRepository.save(product);
-                return true;
-            }
+        if(Objects.isNull(customer) ||
+                Objects.isNull(customer.getEmail()) || Objects.isNull(product)){
             return false;
         }
-        return false;
+        Review customerReview = buildReviewFromRequest(rateRequestDTO, customer);
+        updateProductReviewsAndRatings(product, customerUsername, customerReview);
+        return true;
+    }
+
+    private void updateProductReviewsAndRatings(Product product, String customerUsername, Review customerReview) {
+        //remove existing user review before adding new review
+        List<Review> existingReviewsFromOtherCustomers = product.getReviews()
+                .stream()
+                .filter(review -> !review.getCustomer().getUsername().equalsIgnoreCase(customerUsername))
+                .toList();
+        ArrayList<Review> updatedProductReviews = new ArrayList<>(existingReviewsFromOtherCustomers);
+        updatedProductReviews.add(customerReview);
+
+        product.setReviews(updatedProductReviews);
+
+        int productRating =
+                updatedProductReviews.stream().map(Review::getRating).reduce(0, Integer::sum)
+                        / updatedProductReviews.size();
+        product.setRating(productRating);
+        productRepository.save(product);
+    }
+
+    private Review buildReviewFromRequest(RateRequestDTO rateRequestDTO, Customer customer) {
+        Review review = new Review();
+        review.setRating(rateRequestDTO.getRating());
+        review.setCustomer(customer);
+        review.setText(rateRequestDTO.getText());
+        return review;
     }
 
     @Cacheable(cacheNames = "productReviews", key = "#productId")

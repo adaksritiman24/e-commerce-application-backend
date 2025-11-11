@@ -45,7 +45,7 @@ public class ProductService {
         return associatedProductsIds.stream()
                 .map(associatedProduct -> {
                     Optional<Product> intermediateProductData = productRepository.findById(associatedProduct.getId());
-                    return intermediateProductData.isPresent() ? modelMapper.map(intermediateProductData.get(), SearchedProduct.class) : null;
+                    return intermediateProductData.map(product -> modelMapper.map(product, SearchedProduct.class)).orElse(null);
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());

@@ -37,16 +37,16 @@ public class PaymentService {
         String customerId = paymentAuthorizationRequest.getCustomerId();
         Customer customer = customerRepository.findByUsername(customerId);
 
-        if(Objects.nonNull(customer)) {
-            PaymentResponseDTO paymentResponseDTO = paymentsClient.authorizeCapture(paymentAuthorizationRequest);
-            LOG.info("Got Payment response: {}", paymentResponseDTO);
-
-            if(ORDER_SUCCESS.equals(paymentResponseDTO.getStatus())) {
-                return refreshCustomerCartAndSendOrderAcknowledgement(customer, paymentAuthorizationRequest);
-            }
-            throw new UnsupportedPaymentModeException("Something went wrong in payments API");
+        if(Objects.isNull(customer)) {
+            throw new CustomerNotFoundException("Customer not Found");
         }
-        throw new CustomerNotFoundException("Customer not Found");
+        PaymentResponseDTO paymentResponseDTO = paymentsClient.authorizeCapture(paymentAuthorizationRequest);
+        LOG.info("Got Payment response: {}", paymentResponseDTO);
+
+        if(ORDER_SUCCESS.equals(paymentResponseDTO.getStatus())) {
+            return refreshCustomerCartAndSendOrderAcknowledgement(customer, paymentAuthorizationRequest);
+        }
+        throw new UnsupportedPaymentModeException("Something went wrong in payments API");
     }
 
     private PaymentResponseDTO refreshCustomerCartAndSendOrderAcknowledgement(Customer customer, PaymentAuthorizationRequest paymentAuthorizationRequest) {

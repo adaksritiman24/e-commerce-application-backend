@@ -21,14 +21,16 @@ import java.util.Base64;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.sritiman.ecommerce.ecommerceapplication.constants.Constants.OAUTH_DEFAULT_PASSWORD;
+
 @Service
 public class CustomerService {
-
+    
     private final ModelMapper modelMapper = new ModelMapper();
     private final Logger LOG = LoggerFactory.getLogger(CustomerService.class);
 
-    private CustomerRepository customerRepository;
-    private CartService cartService;
+    private final CustomerRepository customerRepository;
+    private final CartService cartService;
 
     @Autowired
     public CustomerService(CustomerRepository customerRepository, CartService cartService) {
@@ -37,145 +39,115 @@ public class CustomerService {
     }
 
     public SignupResponse signup(SignupRequest signupRequest) {
-        Customer customerToBeCreated = modelMapper.map(signupRequest, Customer.class);
-        customerToBeCreated.setPassword(hashPw(customerToBeCreated.getPassword()));
-
-        checkForDuplicateUsername(customerToBeCreated.getUsername());
-        checkForDuplicateEmail(customerToBeCreated.getEmail());
-
+        checkForDuplicateUsername(signupRequest.getUsername());
+        checkForDuplicateEmail(signupRequest.getEmail());
         try{
-            customerToBeCreated.setCart(new Cart());
-            customerToBeCreated.getAddress().setPhone(customerToBeCreated.getPhoneNumber());
-            customerToBeCreated.getAddress().setEmail(customerToBeCreated.getEmail());
-            customerToBeCreated.getAddress().setName(customerToBeCreated.getName());
-
-            Customer newCustomerData = customerRepository.save(customerToBeCreated);
-            //merge with existing cart
+            Customer newRegisteredCustomer = createNewSignupCustomer(signupRequest);
             Customer anonymousUser = customerRepository.findByUsername(signupRequest.getAnonymousCartUsername());
-            if(Objects.nonNull(anonymousUser)) {
-                Cart anonymousUserCart = anonymousUser.getCart();
-                try {
-                    cartService.mergeCart(newCustomerData.getUsername(), anonymousUserCart.getCartEntryList()
-                            .stream()
-                            .map(cartEntry -> new UpdateCartRequest(cartEntry.getProductId(), cartEntry.getQuantity()))
-                            .collect(Collectors.toList()));
-                    //Remove anonymous user once cartMerge is done
-                    customerRepository.delete(anonymousUser);
-                }
-                catch (Exception e) {
-                    LOG.error(e.getMessage());
-                }
-            }
-            String token = generateNewAuthToken(newCustomerData.getUsername(),newCustomerData.getPassword());
-            return new SignupResponse(newCustomerData, token);
+            mergeAnonymousCartWithRegisteredCustomerCartAndDeleteAnonymousUser(anonymousUser, newRegisteredCustomer);
+            
+            String token = generateNewAuthToken(newRegisteredCustomer.getUsername(),newRegisteredCustomer.getPassword());
+            return new SignupResponse(newRegisteredCustomer, token);
         }
         catch (Exception e) {
             throw new CustomerSignupDatabaseException("Something Went Wrong!");
         }
     }
 
-    public LoginResponse loginWithOauthUser(String username, OauthUserDetails userDetails, String anonymousCartUsername) {
-        Customer customer = customerRepository.findByUsername(username);
-        String defaultOauthPassword = "oauth-default-password";
-        if(customer != null) {
-            boolean matchFound = BCrypt.checkpw(defaultOauthPassword, customer.getPassword());
-            if(matchFound) {
-                //merge with existing cart
-                if(Objects.nonNull(userDetails.getProfilePicture())) {
-                    customer.setProfilePicture(userDetails.getProfilePicture());
-                }
-                Customer anonymousUser = customerRepository.findByUsername(anonymousCartUsername);
-                if(Objects.nonNull(anonymousUser)) {
-                    Cart anonymousUserCart = anonymousUser.getCart();
-                    try {
-                        cartService.mergeCart(username, anonymousUserCart.getCartEntryList()
-                                .stream()
-                                .map(cartEntry -> new UpdateCartRequest(cartEntry.getProductId(), cartEntry.getQuantity()))
-                                .collect(Collectors.toList()));
-                        //Remove anonymous user once cartMerge is done
-                        customerRepository.delete(anonymousUser);
-                    }
-                    catch (Exception e) {
-                        LOG.error(e.getMessage());
-                    }
-                }
-                return new LoginResponse(customer,generateNewAuthToken(customer.getUsername(), customer.getPassword()));
-            }
-            else{
-                throw new LoginException("An user with username "+ username+" already exists!");
-            }
+    private Customer createNewSignupCustomer(SignupRequest signupRequest) {
+        Customer customerToBeCreated = modelMapper.map(signupRequest, Customer.class);
+        customerToBeCreated.setPassword(hashPw(customerToBeCreated.getPassword()));
+        customerToBeCreated.setCart(new Cart());
+        customerToBeCreated.getAddress().setPhone(customerToBeCreated.getPhoneNumber());
+        customerToBeCreated.getAddress().setEmail(customerToBeCreated.getEmail());
+        customerToBeCreated.getAddress().setName(customerToBeCreated.getName());
+
+        return customerRepository.save(customerToBeCreated);
+    }
+
+    public LoginResponse loginWithOauthUser(String username, OauthUserDetails oauthUserDetails,
+                                            String anonymousCartUsername) {
+        Customer registeredCustomer = customerRepository.findByUsername(username);
+        if(Objects.nonNull(registeredCustomer)) {
+            return initiateLoginForExistingOAuthCustomer(username, oauthUserDetails,
+                    anonymousCartUsername, registeredCustomer);
         }
-        else {
-            //throw exception if email already exists
-            Customer customerByEmail = customerRepository.findByEmail(username);
-            if(Objects.nonNull(customerByEmail)) {
-                throw new EmailAlreadyExistsException("Email Id already exists!");
-            }
-            //create the customer
-            Customer newOauthCustomer = new Customer();
-            newOauthCustomer.setUsername(username);
-            newOauthCustomer.setEmail(username);
-            newOauthCustomer.setName(userDetails.getFirstName()+" "+userDetails.getLastName());
-            newOauthCustomer.setPassword(hashPw(defaultOauthPassword));
-            newOauthCustomer.setCart(new Cart());
+        validateEmailAlreadyTaken(username);
+        return initiateLoginForNewOAuthCustomer(username,
+                oauthUserDetails, anonymousCartUsername);
+    }
 
-            //set customer profile picture
-            if(Objects.nonNull(userDetails.getProfilePicture())) {
-                newOauthCustomer.setProfilePicture(userDetails.getProfilePicture());
-            }
+    private LoginResponse initiateLoginForNewOAuthCustomer(String username, OauthUserDetails oauthUserDetails,
+                                                           String anonymousCartUsername) {
+        Customer newCustomer = buildNewOauthCustomer(username, oauthUserDetails);
+        Customer anonymousCustomer = customerRepository.findByUsername(anonymousCartUsername);
 
-            Customer newCustomer = customerRepository.save(newOauthCustomer);
+        mergeAnonymousCartWithRegisteredCustomerCartAndDeleteAnonymousUser(anonymousCustomer, newCustomer);
+        String token = generateNewAuthToken(newCustomer.getUsername(),newCustomer.getPassword());
+        return new LoginResponse(newCustomer, token);
+    }
 
-            //merge with existing cart
-            Customer anonymousUser = customerRepository.findByUsername(anonymousCartUsername);
-            if(Objects.nonNull(anonymousUser)) {
-                Cart anonymousUserCart = anonymousUser.getCart();
-                try {
-                    cartService.mergeCart(newCustomer.getUsername(), anonymousUserCart.getCartEntryList()
-                            .stream()
-                            .map(cartEntry -> new UpdateCartRequest(cartEntry.getProductId(), cartEntry.getQuantity()))
-                            .collect(Collectors.toList()));
-                    //Remove anonymous user once cartMerge is done
-                    customerRepository.delete(anonymousUser);
-                }
-                catch (Exception e) {
-                    LOG.error(e.getMessage());
-                }
-            }
-            String token = generateNewAuthToken(newCustomer.getUsername(),newCustomer.getPassword());
-            return new LoginResponse(newCustomer, token);
+    private Customer buildNewOauthCustomer(String username, OauthUserDetails userDetails) {
+        Customer newOauthCustomer = new Customer();
+        newOauthCustomer.setUsername(username);
+        newOauthCustomer.setEmail(username);
+        newOauthCustomer.setName(userDetails.getFirstName()+" "+ userDetails.getLastName());
+        newOauthCustomer.setPassword(hashPw(OAUTH_DEFAULT_PASSWORD));
+        newOauthCustomer.setCart(new Cart());
+        newOauthCustomer.setProfilePicture(userDetails.getProfilePicture());
+
+        return customerRepository.save(newOauthCustomer);
+    }
+
+    private void validateEmailAlreadyTaken(String username) {
+        Customer customerByEmail = customerRepository.findByEmail(username);
+        if(Objects.nonNull(customerByEmail)) {
+            throw new EmailAlreadyExistsException("Email Id already exists!");
         }
     }
 
+    private LoginResponse initiateLoginForExistingOAuthCustomer(String username, OauthUserDetails oauthUserDetails,
+                                                                String anonymousCartUsername, Customer registeredCustomer) {
+        boolean isValidOAuthCustomer = BCrypt.checkpw(OAUTH_DEFAULT_PASSWORD, registeredCustomer.getPassword());
+        if(!isValidOAuthCustomer) {
+            throw new LoginException("An user with username "+ username +" already exists!");
+        }
+        registeredCustomer.setProfilePicture(oauthUserDetails.getProfilePicture());
+        Customer anonymousCustomer = customerRepository.findByUsername(anonymousCartUsername);
+        mergeAnonymousCartWithRegisteredCustomerCartAndDeleteAnonymousUser(anonymousCustomer, registeredCustomer);
+        return new LoginResponse(registeredCustomer, 
+                generateNewAuthToken(registeredCustomer.getUsername(), registeredCustomer.getPassword()));
+    }
+
+    private void mergeAnonymousCartWithRegisteredCustomerCartAndDeleteAnonymousUser(Customer anonymousCustomer, 
+                                                                                    Customer registeredCustomer) {
+        if(Objects.nonNull(anonymousCustomer)) {
+            Cart anonymousUserCart = anonymousCustomer.getCart();
+            try {
+                cartService.mergeCart(registeredCustomer, anonymousUserCart.getCartEntryList()
+                        .stream()
+                        .map(cartEntry -> new UpdateCartRequest(cartEntry.getProductId(), cartEntry.getQuantity()))
+                        .collect(Collectors.toList()));
+                
+                customerRepository.delete(anonymousCustomer);
+            }
+            catch (Exception e) {
+                LOG.error(e.getMessage());
+            }
+        }
+    }
 
     public LoginResponse login(String username, String password, String anonymousCartUsername) throws LoginException {
         Customer customer = customerRepository.findByUsername(username);
-        if(customer != null) {
-            boolean matchFound = BCrypt.checkpw(password, customer.getPassword());
-            if(matchFound) {
-                //merge with existing cart
-                Customer anonymousUser = customerRepository.findByUsername(anonymousCartUsername);
-                if(Objects.nonNull(anonymousUser)) {
-                    Cart anonymousUserCart = anonymousUser.getCart();
-                    try {
-                        cartService.mergeCart(username, anonymousUserCart.getCartEntryList()
-                                .stream()
-                                .map(cartEntry -> new UpdateCartRequest(cartEntry.getProductId(), cartEntry.getQuantity()))
-                                .collect(Collectors.toList()));
-                        //Remove anonymous user once cartMerge is done
-                        customerRepository.delete(anonymousUser);
-                    }
-                    catch (Exception e) {
-                        LOG.error(e.getMessage());
-                    }
-                }
-                return new LoginResponse(customer,generateNewAuthToken(customer.getUsername(), customer.getPassword()));
-            }
-            else
-                throw new LoginException("Invalid-password invalid");
+        if(Objects.isNull(customer)) {
+            throw new LoginException("Invalid: username invalid");
         }
-        else
-            throw new LoginException("Invalid-username invalid");
+        if(!BCrypt.checkpw(password, customer.getPassword())) {
+            throw new LoginException("Invalid: password invalid");
+        }
+        Customer anonymousUser = customerRepository.findByUsername(anonymousCartUsername);
+        mergeAnonymousCartWithRegisteredCustomerCartAndDeleteAnonymousUser(anonymousUser, customer);
+        return new LoginResponse(customer,generateNewAuthToken(customer.getUsername(), customer.getPassword()));
     }
 
     private String generateNewAuthToken(String username, String password) {
@@ -183,11 +155,13 @@ public class CustomerService {
     }
 
     private void checkForDuplicateUsername(String username) throws CustomerSignupDatabaseException{
-        if(customerRepository.findByUsername(username) != null) throw new CustomerSignupDatabaseException("username already exists");
+        if(customerRepository.findByUsername(username) != null) 
+            throw new CustomerSignupDatabaseException("username already exists");
     }
 
     private void checkForDuplicateEmail(String email) throws CustomerSignupDatabaseException{
-        if(customerRepository.findByEmail(email) != null) throw new CustomerSignupDatabaseException("email already exists");
+        if(customerRepository.findByEmail(email) != null) 
+            throw new CustomerSignupDatabaseException("email already exists");
     }
 
     private String hashPw(String plainPassword) {

@@ -69,7 +69,7 @@ public class CartController {
     public ResponseEntity<Cart> mergeCart(@PathVariable String username,
                                           @RequestBody List<UpdateCartRequest> fromCartItems) {
         try {
-            return new ResponseEntity<>(cartService.mergeCart(username, fromCartItems), HttpStatus.OK);
+            return new ResponseEntity<>(cartService.mergeCustomerCart(username, fromCartItems), HttpStatus.OK);
         }catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }

@@ -13,6 +13,7 @@ import jakarta.persistence.Id;
 @AllArgsConstructor
 @Getter
 @Setter
+@Builder
 public class Address {
 
     @Id

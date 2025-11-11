@@ -6,4 +6,5 @@ public class Constants {
     public static final String ACCOUNT_NOT_FOUND = "Account not found";
     public static final String ACCOUNT_BALANCE_INSUFFICIENT = "Account Balance Is Insufficient";
     public static final String PAYMENTS_CLIENT = "Payments-Client";
+    public static final String OAUTH_DEFAULT_PASSWORD = "oauth-default-password";
 }
