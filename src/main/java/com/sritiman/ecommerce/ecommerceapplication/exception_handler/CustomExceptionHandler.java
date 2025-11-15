@@ -72,4 +72,14 @@ public class CustomExceptionHandler {
         return new ResponseEntity<>(new ErrorResponse(paymentsServiceException.getMessage(), null), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @ExceptionHandler(CustomNotFoundException.class)
+    public ResponseEntity<ErrorResponse> customNotFoundException(CustomNotFoundException customNotFoundException) {
+        return new ResponseEntity<>(new ErrorResponse(customNotFoundException.getMessage(), null), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(CustomBadException.class)
+    public ResponseEntity<ErrorResponse> customBadException(CustomBadException customBadException) {
+        return new ResponseEntity<>(new ErrorResponse(customBadException.getMessage(), null), HttpStatus.BAD_REQUEST);
+    }
+
 }
