@@ -20,6 +20,7 @@ public class BannerPromotionDataStub implements CommandLineRunner {
             var bp2 = new BannerPromotion(1, "/buzz/imgs/banner/fashion.jpeg","Buzz Super-Bonanza offer", "Amazing Mens' tshirts starting from only ₹599", "Grab your deal", "/category?id=49");
             var bp3 = new BannerPromotion(2, "/buzz/imgs/banner/beauty-products.jpeg","Great Deals on Beauty Products","Explore the wide range of beauty products and get exciting offers","Explore","/category?id=53");
 
+            bannerPromotionsRepository.deleteAll();
             bannerPromotionsRepository.save(bp1);
             bannerPromotionsRepository.save(bp2);
             bannerPromotionsRepository.save(bp3);
