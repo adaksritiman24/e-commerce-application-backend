@@ -10,6 +10,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GiftCardDTO {
-    private String cardNumber;
-    private String name;
+    private String giftCardId;
+    private double amount;
 }

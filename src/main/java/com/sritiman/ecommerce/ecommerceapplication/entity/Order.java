@@ -30,6 +30,12 @@ public class Order {
     @Column(name = "total_price")
     private Double totalPrice;
 
+    @Column(name = "is_gift_card_applied")
+    private Boolean isGiftCardApplied;
+
+    @Column(name = "gift_card_id")
+    private String giftCardId;
+
     @OneToOne(targetEntity = Address.class, cascade = {CascadeType.ALL})
     private Address deliveryAddress;
 

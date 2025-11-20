@@ -1,15 +1,14 @@
 package com.sritiman.ecommerce.ecommerceapplication.service;
 
 import com.sritiman.ecommerce.ecommerceapplication.entity.*;
+import com.sritiman.ecommerce.ecommerceapplication.exceptions.CustomNotFoundException;
 import com.sritiman.ecommerce.ecommerceapplication.exceptions.OrderNotFoundException;
 import com.sritiman.ecommerce.ecommerceapplication.messaging.sender.CreateOrderJsonSender;
 import com.sritiman.ecommerce.ecommerceapplication.model.OrderDTO;
+import com.sritiman.ecommerce.ecommerceapplication.model.payments.PaymentAuthorizationRequest;
 import com.sritiman.ecommerce.ecommerceapplication.model.response.OrderHistoryItemDTO;
 import com.sritiman.ecommerce.ecommerceapplication.model.response.OrderHistoryResponseDTO;
-import com.sritiman.ecommerce.ecommerceapplication.repository.CartRepository;
-import com.sritiman.ecommerce.ecommerceapplication.repository.CustomerRepository;
-import com.sritiman.ecommerce.ecommerceapplication.repository.OrderRepository;
-import com.sritiman.ecommerce.ecommerceapplication.repository.ProductRepository;
+import com.sritiman.ecommerce.ecommerceapplication.repository.*;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -32,14 +31,18 @@ public class OrderService {
     CustomerRepository customerRepository;
     ProductRepository productRepository;
     CreateOrderJsonSender createOrderJsonSender;
+    GiftCardRepository giftCardRepository;
 
     @Autowired
-    public OrderService(OrderRepository orderRepository, CartRepository cartRepository, CustomerRepository customerRepository, ProductRepository productRepository, CreateOrderJsonSender createOrderJsonSender) {
+    public OrderService(OrderRepository orderRepository, CartRepository cartRepository,
+                        CustomerRepository customerRepository, ProductRepository productRepository,
+                        CreateOrderJsonSender createOrderJsonSender, GiftCardRepository giftCardRepository) {
         this.orderRepository = orderRepository;
         this.cartRepository = cartRepository;
         this.customerRepository = customerRepository;
         this.productRepository = productRepository;
         this.createOrderJsonSender = createOrderJsonSender;
+        this.giftCardRepository = giftCardRepository;
     }
 
     public OrderDTO getOrder(Long orderId) {
@@ -64,10 +67,10 @@ public class OrderService {
     }
 
     @Transactional
-    public Order placeOrder(Customer customer, PaymentDetails paymentDetails){
+    public Order placeOrder(Customer customer, PaymentAuthorizationRequest paymentAuthorizationRequest){
         LOG.info("Pacing order for user: {} with cartId: {}", customer.getUsername(), customer.getCart().getId());
         Cart customerCart = customer.getCart();
-        Order order = cloneCartToOrder(customerCart, paymentDetails);
+        Order order = cloneCartToOrder(customerCart, paymentAuthorizationRequest);
         order.setCustomer(customer);
         order.setStatus(OrderStatus.CREATED);
 
@@ -83,13 +86,35 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
-    private Order cloneCartToOrder(Cart cart, PaymentDetails paymentDetails) {
+    private Order cloneCartToOrder(Cart cart, PaymentAuthorizationRequest paymentAuthorizationRequest) {
         Order order = new Order();
         order.setOrderEntryList(createOrderEntryList(cart.getCartEntryList()));
         order.setTotalPrice(cart.getTotalPrice());
         order.setDeliveryAddress(getCustomerDeliveryAddress(cart.getDeliveryAddress()));
-        order.setPaymentDetails(paymentDetails);
+        order.setPaymentDetails(getPaymentDetails(paymentAuthorizationRequest));
+        setGiftCardDetails(paymentAuthorizationRequest, order);
+        inActivateGiftCard(paymentAuthorizationRequest.getGiftCard().getGiftCardId());
         return order;
+    }
+
+    private void setGiftCardDetails(PaymentAuthorizationRequest paymentAuthorizationRequest, Order order) {
+        order.setIsGiftCardApplied(paymentAuthorizationRequest.getIsGiftCardApplied());
+        order.setGiftCardId(paymentAuthorizationRequest.getGiftCard().getGiftCardId());
+    }
+
+    private void inActivateGiftCard(String giftCardId) {
+        GiftCard giftCard = giftCardRepository.findById(giftCardId)
+                .orElseThrow(() -> new CustomNotFoundException("No gift cards found with this id"));
+        giftCard.setIsActive(Boolean.FALSE);
+        giftCardRepository.save(giftCard);
+    }
+
+    private PaymentDetails getPaymentDetails(PaymentAuthorizationRequest
+                                             paymentAuthorizationRequest) {
+        PaymentDetails paymentDetails = new PaymentDetails();
+        paymentDetails.setPaymentMode(PaymentMode.BANK_CARD);
+        paymentDetails.setTotalAmount(paymentAuthorizationRequest.getCost().getTotalCost());
+        return paymentDetails;
     }
 
     private List<CartEntry> createOrderEntryList(List<CartEntry> cartEntryList) {

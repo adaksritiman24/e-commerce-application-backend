@@ -22,6 +22,8 @@ public class PaymentAuthorizationRequest {
     private BankCardDTO bankCard;
     private GiftCardDTO giftCard;
 
+    private Boolean isGiftCardApplied;
+
     @JsonProperty(required = true)
     private CostDTO cost;
 }
