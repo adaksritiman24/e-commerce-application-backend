@@ -16,4 +16,5 @@ public class GetGiftCardsResponse {
     String title;
     String description;
     String issuer;
+    boolean isActive;
 }

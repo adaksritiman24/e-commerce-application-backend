@@ -39,6 +39,7 @@ public class GiftCardService {
                 .title(giftCard.getTitle())
                 .description(giftCard.getDescription())
                 .issuer(giftCard.getIssuerName())
+                .isActive(giftCard.getIsActive())
                 .build();
     }
 

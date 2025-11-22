@@ -92,7 +92,9 @@ public class PaymentService {
                 throw new CustomBadException("This gift cards is not redeemed by any customer");
             }
         }
-        throw new CustomNotFoundException("No gift cards found with this id");
+        else {
+            throw new CustomNotFoundException("No gift cards found with this id");
+        }
     }
 
     private PaymentResponseDTO refreshCustomerCartAndSendOrderAcknowledgement(Customer customer,
