@@ -92,8 +92,10 @@ public class OrderService {
         order.setTotalPrice(cart.getTotalPrice());
         order.setDeliveryAddress(getCustomerDeliveryAddress(cart.getDeliveryAddress()));
         order.setPaymentDetails(getPaymentDetails(paymentAuthorizationRequest));
-        setGiftCardDetails(paymentAuthorizationRequest, order);
-        inActivateGiftCard(paymentAuthorizationRequest.getGiftCard().getGiftCardId());
+        if(Boolean.TRUE.equals(paymentAuthorizationRequest.getIsGiftCardApplied())) {
+            setGiftCardDetails(paymentAuthorizationRequest, order);
+            inActivateGiftCard(paymentAuthorizationRequest.getGiftCard().getGiftCardId());
+        }
         return order;
     }
 
